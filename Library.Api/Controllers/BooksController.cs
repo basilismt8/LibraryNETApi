@@ -1,4 +1,5 @@
-﻿using Library.Api.Data;
+﻿using AutoMapper;
+using Library.Api.Data;
 using Library.Api.Models.Domain;
 using Library.Api.Models.Dto;
 using Library.Api.Repositories;
@@ -13,30 +14,24 @@ namespace Library.Api.Controllers
     public class BooksController : ControllerBase
     {
         private readonly LibraryDbContext dbContext;
+        private readonly IMapper mapper;
 
         public IBookRepository bookRepository { get; }
 
-        public BooksController(LibraryDbContext dbContext, IBookRepository bookRepository)
+        public BooksController(LibraryDbContext dbContext,
+            IBookRepository bookRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
             this.bookRepository = bookRepository;
+            this.mapper = mapper;
         }
 
         [HttpGet("getAll")]
         public async Task<IActionResult> getAll() {
             var booksDomain = await bookRepository.getAllAsync();
-            var booksDto = new List<BookDto>();
 
-            foreach (var bookDomain in booksDomain){
-                booksDto.Add(new BookDto() {
-                    id = bookDomain.id,
-                    title = bookDomain.title,
-                    copiesAvailable = bookDomain.copiesAvailable,
-                    totalCopies = bookDomain.totalCopies
-                });
-            }
-
-            return Ok(booksDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<List<BookDto>>(booksDomain));
         }
 
         [HttpGet("getById/{id}")]
@@ -48,45 +43,23 @@ namespace Library.Api.Controllers
                 return NotFound();
             }
 
-            var bookDto = new BookDto {
-                id = bookDomain.id,
-                title = bookDomain.title,
-                copiesAvailable = bookDomain.copiesAvailable,
-                totalCopies = bookDomain.totalCopies
-            };
-
-            return Ok(bookDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto) {
-            var bookDomain = new Book {
-                title = createBookRequestDto.title,
-                copiesAvailable = createBookRequestDto.copiesAvailable,
-                totalCopies = createBookRequestDto.totalCopies
-            };
+            var bookDomain = mapper.Map<Book>(createBookRequestDto);
 
             bookDomain = await bookRepository.CreateAsync(bookDomain);
 
-            var bookDto = new BookDto {
-                id = bookDomain.id,
-                title = bookDomain.title,
-                copiesAvailable = bookDomain.copiesAvailable,
-                totalCopies = bookDomain.totalCopies
-            };
-
-            return CreatedAtAction(nameof(getById), new { bookDomain.id }, bookDomain);
+            return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
         }
 
         [HttpPut("update")]
         [Route("{id:Guid}")]
         public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto) {
-            var bookDomain = new Book
-            {
-                title = updateBookRequestDto.title,
-                copiesAvailable = updateBookRequestDto.copiesAvailable,
-                totalCopies = updateBookRequestDto.totalCopies
-            };
+            var bookDomain = mapper.Map<Book>(updateBookRequestDto);
 
             bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
 
@@ -94,14 +67,7 @@ namespace Library.Api.Controllers
                 return NotFound();
             }
 
-            var bookDto = new BookDto {
-                id = bookDomain.id,
-                title = bookDomain.title,
-                copiesAvailable = bookDomain.copiesAvailable,
-                totalCopies = bookDomain.totalCopies
-            };
-
-            return Ok(bookDto);
+            return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
         [HttpDelete("delete")]
@@ -114,16 +80,7 @@ namespace Library.Api.Controllers
                 return NotFound();
             }
 
-            //optional: return deleted Book back
-            var bookDto = new BookDto
-            {
-                id = bookDomain.id,
-                title = bookDomain.title,
-                copiesAvailable = bookDomain.copiesAvailable,
-                totalCopies = bookDomain.totalCopies
-            };
-
-            return Ok(bookDto);
+            return Ok(mapper.Map<BookDto>(bookDomain));
         }
     }
 }
