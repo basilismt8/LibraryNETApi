@@ -12,5 +12,7 @@ namespace Library.Api.Models.Dto
         public decimal amount { get; set; }
         public bool paid { get; set; }
         public DateOnly fineDate { get; set; }
+        //Navigation properties
+        public required LoanDto Loan { get; set; }
     }
 }

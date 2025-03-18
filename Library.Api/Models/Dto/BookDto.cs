@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Library.Api.Models.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Library.Api.Models.Dto
 {
@@ -9,5 +10,8 @@ namespace Library.Api.Models.Dto
         public string title { get; set; } = string.Empty;
         public int copiesAvailable { get; set; }
         public int totalCopies { get; set; }
+
+        // Navigation property: One book can have many loans
+        public ICollection<LoanDto> Loans { get; set; } = new List<LoanDto>();
     }
 }
