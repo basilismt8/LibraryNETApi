@@ -1,5 +1,7 @@
-﻿using Library.Api.Data;
+﻿using AutoMapper;
+using Library.Api.Data;
 using Library.Api.Models.Dto;
+using Library.Api.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,57 +12,37 @@ namespace Library.Api.Controllers
     public class LoansController : ControllerBase
     {
         private readonly LibraryDbContext dbContext;
+        private readonly ILoanRepository loanRepository;
+        private readonly IMapper mapper;
 
-        public LoansController(LibraryDbContext dbContext)
+        public LoansController(LibraryDbContext dbContext, ILoanRepository loanRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.loanRepository = loanRepository;
+            this.mapper = mapper;
         }
 
         [HttpGet("getAll")]
-        public IActionResult getAll()
+        public async Task<IActionResult> getAll()
         {
-            var loansDomain = dbContext.Loans.ToList();
-            var loansDto = new List<LoanDto>();
+            var loansDomain = await loanRepository.getAllAsync();
 
-            foreach (var loanDomain in loansDomain)
-            {
-                loansDto.Add(new LoanDto()
-                {
-                    id = loanDomain.id,
-                    bookId = loanDomain.bookId,
-                    userId = loanDomain.userId,
-                    loanDate = loanDomain.loanDate,
-                    dueDate = loanDomain.dueDate,
-                    status = loanDomain.status
-                });
-            }
-
-            return Ok(loansDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<List<LoanDto>>(loansDomain));
         }
 
         [HttpGet("getById/{id}")]
-        public IActionResult getById(Guid id)
+        public async Task<IActionResult> getById(Guid id)
         {
-            var loanDomain = dbContext.Loans.Find(id);
-            //LINQ query. Is the same with the above line!!!
-            //var book = dbContext.Books.FirstOrDefault(x => x.id == id);
+            var loanDomain = await loanRepository.getByIdAsync(id);
 
             if (loanDomain == null)
             {
                 return NotFound();
             }
 
-            var loanDto = new LoanDto
-            {
-                id = loanDomain.id,
-                bookId = loanDomain.bookId,
-                userId = loanDomain.userId,
-                loanDate = loanDomain.loanDate,
-                dueDate = loanDomain.dueDate,
-                status = loanDomain.status
-            };
-
-            return Ok(loanDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<LoanDto>(loanDomain));
         }
     }
 }

@@ -14,14 +14,14 @@ namespace Library.Api.Controllers
     public class BooksController : ControllerBase
     {
         private readonly LibraryDbContext dbContext;
+        private readonly IBookRepository bookRepository;
         private readonly IMapper mapper;
-
-        public IBookRepository bookRepository { get; }
 
         public BooksController(LibraryDbContext dbContext,
             IBookRepository bookRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.bookRepository = bookRepository;
             this.bookRepository = bookRepository;
             this.mapper = mapper;
         }

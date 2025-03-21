@@ -11,7 +11,8 @@ namespace Library.Api.Mappings
             CreateMap<Book, BookDto>().ReverseMap();
             CreateMap<CreateBookRequestDto, Book>().ReverseMap();
             CreateMap<UpdateBookRequestDto, Book>().ReverseMap();
-
+            CreateMap<Fine, FineDto>().ReverseMap();
+            CreateMap<Loan, LoanDto>().ReverseMap();
         }
     }
 }

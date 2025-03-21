@@ -1,5 +1,7 @@
-﻿using Library.Api.Data;
+﻿using AutoMapper;
+using Library.Api.Data;
 using Library.Api.Models.Dto;
+using Library.Api.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,57 +12,37 @@ namespace Library.Api.Controllers
     public class FinesController : ControllerBase
     {
         private readonly LibraryDbContext dbContext;
+        private readonly IFineRepository fineRepository;
+        private readonly IMapper mapper;
 
-        public FinesController(LibraryDbContext dbContext)
+        public FinesController(LibraryDbContext dbContext, IFineRepository fineRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.fineRepository = fineRepository;
+            this.mapper = mapper;
         }
 
         [HttpGet("getAll")]
-        public IActionResult getAll()
+        public async Task<IActionResult> getAll()
         {
-            var finesDomain = dbContext.Fines.ToList();
-            var finesDto = new List<FineDto>();
+            var finesDomain = await fineRepository.getAllAsync();
 
-            foreach (var fineDomain in finesDomain)
-            {
-                finesDto.Add(new FineDto()
-                {
-                    id = fineDomain.id,
-                    userId = fineDomain.userId,
-                    loanId = fineDomain.loanId,
-                    amount = fineDomain.amount,
-                    paid = fineDomain.paid,
-                    fineDate = fineDomain.fineDate
-                });
-            }
-
-            return Ok(finesDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<List<FineDto>>(finesDomain));
         }
 
         [HttpGet("getById/{id}")]
-        public IActionResult getById(Guid id)
+        public async Task<IActionResult> getById(Guid id)
         {
-            var fineDomain = dbContext.Fines.Find(id);
-            //LINQ query. Is the same with the above line!!!
-            //var book = dbContext.Books.FirstOrDefault(x => x.id == id);
+            var fineDomain = await fineRepository.getByIdAsync(id);
 
             if (fineDomain == null)
             {
                 return NotFound();
             }
 
-            var fineDto = new FineDto
-            {
-                id = fineDomain.id,
-                userId = fineDomain.userId,
-                loanId = fineDomain.loanId,
-                amount = fineDomain.amount,
-                paid = fineDomain.paid,
-                fineDate = fineDomain.fineDate
-            };
-
-            return Ok(fineDto);
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<FineDto>(fineDomain));
         }
     }
 }
