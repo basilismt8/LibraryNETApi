@@ -5,7 +5,7 @@ namespace Library.Api.Data
 {
     public class LibraryDbContext : DbContext
     {
-        public LibraryDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        public LibraryDbContext(DbContextOptions<LibraryDbContext> dbContextOptions) : base(dbContextOptions)
         {
             
         }
@@ -59,10 +59,6 @@ namespace Library.Api.Data
                 .HasColumnType("bit") // Ensures it maps to SQL Server BIT type
                 .HasDefaultValue(false) // Default is FALSE (0)
                 .IsRequired(); // Ensures NOT NULL
-
-            modelBuilder.Entity<Fine>()
-                .Property(f => f.fineDate)
-                .HasDefaultValue("GETDATE()"); // Default is FALSE (0)
 
             // Relationships
 
