@@ -23,12 +23,15 @@ namespace Library.Api.Repositories
         public async Task<Book?> DeleteAsync(Guid id)
         {
             var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == id);
-            if (existingBook != null)
+
+            if (existingBook == null)
             {
                 return null;
             }
+
             dbContext.Books.Remove(existingBook);
             await dbContext.SaveChangesAsync();
+
             return existingBook;
         }
 
@@ -45,7 +48,7 @@ namespace Library.Api.Repositories
         public async Task<Book?> UpdateAsync(Guid id, Book book)
         {
             var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == id);
-            if (existingBook != null) {
+            if (existingBook == null) {
                 return null;
             }
 
