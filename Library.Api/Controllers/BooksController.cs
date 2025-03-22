@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Library.Api.CustomActionFilters;
 using Library.Api.Data;
 using Library.Api.Models.Domain;
 using Library.Api.Models.Dto;
@@ -48,37 +49,32 @@ namespace Library.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto) {
-            if (ModelState.IsValid) {
-                var bookDomain = mapper.Map<Book>(createBookRequestDto);
+        [validateModel]
+        public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto)
+        {
 
-                bookDomain = await bookRepository.CreateAsync(bookDomain);
+            var bookDomain = mapper.Map<Book>(createBookRequestDto);
 
-                return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
-            }
-            else {
-                return BadRequest(ModelState);
-            }
+            bookDomain = await bookRepository.CreateAsync(bookDomain);
+
+            return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
         }
 
         [HttpPut("update")]
         [Route("{id:Guid}")]
-        public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto) {
-            if (ModelState.IsValid) {
-                var bookDomain = mapper.Map<Book>(updateBookRequestDto);
+        [validateModel]
+        public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
+        {
+            var bookDomain = mapper.Map<Book>(updateBookRequestDto);
 
-                bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
+            bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
 
-                if (bookDomain == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(mapper.Map<BookDto>(bookDomain));
+            if (bookDomain == null)
+            {
+                return NotFound();
             }
-            else {
-                return BadRequest(ModelState);
-            }
+
+            return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
         [HttpDelete("delete")]
