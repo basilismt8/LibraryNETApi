@@ -49,25 +49,36 @@ namespace Library.Api.Controllers
 
         [HttpPost("create")]
         public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto) {
-            var bookDomain = mapper.Map<Book>(createBookRequestDto);
+            if (ModelState.IsValid) {
+                var bookDomain = mapper.Map<Book>(createBookRequestDto);
 
-            bookDomain = await bookRepository.CreateAsync(bookDomain);
+                bookDomain = await bookRepository.CreateAsync(bookDomain);
 
-            return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
+                return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
+            }
+            else {
+                return BadRequest(ModelState);
+            }
         }
 
         [HttpPut("update")]
         [Route("{id:Guid}")]
         public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto) {
-            var bookDomain = mapper.Map<Book>(updateBookRequestDto);
+            if (ModelState.IsValid) {
+                var bookDomain = mapper.Map<Book>(updateBookRequestDto);
 
-            bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
+                bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
 
-            if (bookDomain == null) {
-                return NotFound();
+                if (bookDomain == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(mapper.Map<BookDto>(bookDomain));
             }
-
-            return Ok(mapper.Map<BookDto>(bookDomain));
+            else {
+                return BadRequest(ModelState);
+            }
         }
 
         [HttpDelete("delete")]

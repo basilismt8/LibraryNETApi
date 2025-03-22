@@ -18,7 +18,9 @@ namespace Library.Api.Data
         {
             modelBuilder.Entity<Book>()
                 .Property(b => b.title)
-                .IsRequired(); // Ensures title is NOT NULL
+                .IsRequired() // Ensures title is NOT NULL
+                .HasMaxLength(256) // Ensures max length of 256 characters
+                .HasColumnType("VARCHAR(255)"); // Explicitly sets VARCHAR instead of NVARCHAR
 
             modelBuilder.Entity<Book>()
                 .Property(b => b.copiesAvailable)
@@ -32,6 +34,10 @@ namespace Library.Api.Data
                 .Property(l => l.loanDate)
                 .HasColumnType("date") // Ensures SQL DATE type
                 .HasDefaultValueSql("GETDATE()"); // Uses SQL Server's current date
+
+            modelBuilder.Entity<Loan>()
+                .Property(l => l.dueDate)
+                .IsRequired(); // Ensures title is NOT NULL
 
             modelBuilder.Entity<Loan>()
                 .Property(l => l.status)
@@ -53,6 +59,10 @@ namespace Library.Api.Data
                 .HasColumnType("bit") // Ensures it maps to SQL Server BIT type
                 .HasDefaultValue(false) // Default is FALSE (0)
                 .IsRequired(); // Ensures NOT NULL
+
+            modelBuilder.Entity<Fine>()
+                .Property(f => f.fineDate)
+                .HasDefaultValue("GETDATE()"); // Default is FALSE (0)
 
             // Relationships
 

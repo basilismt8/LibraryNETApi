@@ -13,6 +13,6 @@ namespace Library.Api.Models.Dto
         public bool paid { get; set; }
         public DateOnly fineDate { get; set; }
         //Navigation properties
-        public required LoanDto Loan { get; set; }
+        public LoanDto Loan { get; set; }
     }
 }

@@ -6,8 +6,6 @@ namespace Library.Api.Models.Domain
     public class Book
     {
         public Guid id { get; set; }
-
-        [Required]
         public string title { get; set; } = string.Empty;
         public int copiesAvailable { get; set; }
         public int totalCopies { get; set; }
