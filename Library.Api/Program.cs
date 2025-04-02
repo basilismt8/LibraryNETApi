@@ -22,6 +22,8 @@ builder.Services.AddDbContext<LibraryAuthDbContext>(options =>
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
 builder.Services.AddScoped<IFineRepository, SQLFineRepository>();
 builder.Services.AddScoped<ILoanRepository, SQLLoanRepository>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddIdentityCore<IdentityUser>()

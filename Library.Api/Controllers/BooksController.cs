@@ -62,8 +62,7 @@ namespace Library.Api.Controllers
             return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpPut("update")]
-        [Route("{id:Guid}")]
+        [HttpPut("update/{id:Guid}")]
         [validateModel]
         public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
         {
@@ -79,8 +78,7 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpDelete("delete")]
-        [Route("{id:Guid}")]
+        [HttpDelete("delete/{id:Guid}")]
         public async Task<IActionResult> deleteBook([FromRoute] Guid id)
         {
             var bookDomain = await bookRepository.DeleteAsync(id);
