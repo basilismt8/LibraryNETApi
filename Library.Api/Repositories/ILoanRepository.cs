@@ -1,4 +1,5 @@
 ﻿using Library.Api.Models.Domain;
+using Library.Api.Models.Dto;
 
 namespace Library.Api.Repositories
 {
@@ -6,5 +7,6 @@ namespace Library.Api.Repositories
     {
         Task<List<Loan>> getAllAsync();
         Task<Loan?> getByIdAsync(Guid id);
+        Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto);
     }
 }

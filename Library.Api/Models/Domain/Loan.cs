@@ -14,7 +14,6 @@ namespace Library.Api.Models.Domain
         // Navigation properties
         public Book? Book { get; set; }
         public Fine? Fine { get; set; }
-
     }
 }
 

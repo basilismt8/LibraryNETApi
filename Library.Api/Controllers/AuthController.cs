@@ -49,7 +49,7 @@ namespace Library.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> login([FromBody] LoginRequestDto loginRequestDto)
         {
-            var user = await userManager.FindByIdAsync(loginRequestDto.Username);
+            var user = await userManager.FindByEmailAsync(loginRequestDto.Username);
             if (user != null)
             {
                 var signInResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);

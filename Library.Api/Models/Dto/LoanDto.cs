@@ -11,8 +11,5 @@ namespace Library.Api.Models.Dto
         public DateOnly loanDate { get; set; }
         public DateOnly dueDate { get; set; }
         public LoanStatus status { get; set; }
-        // Navigation properties
-        public BookDto Book { get; set; }
-        public FineDto Fine { get; set; }
     }
 }
