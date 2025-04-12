@@ -48,6 +48,22 @@ namespace Library.Api.Repositories
             return createdLoans;
         }
 
+        public async Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan)
+        {
+            var existingLoan = await dbContext.Loans.FirstOrDefaultAsync(x => x.id == id);
+            if (existingLoan == null)
+            {
+                return null;
+            }
+
+            existingLoan.dueDate = loan.dueDate;
+
+            dbContext.Loans.Update(existingLoan);
+
+            await dbContext.SaveChangesAsync();
+            return existingLoan;
+        }
+
         public async Task<List<Loan>> getAllAsync()
         {
             return await dbContext.Loans.ToListAsync();

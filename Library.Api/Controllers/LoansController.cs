@@ -29,6 +29,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpGet("getAll")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> getAll()
         {
             var loansDomain = await loanRepository.getAllAsync();
@@ -38,6 +39,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpGet("getById/{id}")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> getById(Guid id)
         {
             var loanDomain = await loanRepository.getByIdAsync(id);
@@ -72,6 +74,41 @@ namespace Library.Api.Controllers
 
             return Ok(loanDtos);
 
+        }
+
+
+        [HttpPut("extendLoanPeriod/{id:Guid}")]
+        [validateModel]
+        [Authorize(Roles = "Librarian")]
+        public async Task<IActionResult> extendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto)
+        {
+            var extendLoanPeriodDomain = mapper.Map<Loan>(extendLoanRequestDto);
+
+            var existingLoan = await loanRepository.getByIdAsync(id);  // Assuming you have a getByIdAsync method
+
+            if (existingLoan == null)
+            {
+                return NotFound("Loan not found.");
+            }
+
+            if (existingLoan.status == LoanStatus.overdue)
+            {
+                return BadRequest("Cannot extend an overdue loan.");
+            }
+
+            if (existingLoan.dueDate >= extendLoanPeriodDomain.dueDate)
+            {
+                return BadRequest("New due date must be after the current due date.");
+            }
+
+            extendLoanPeriodDomain = await loanRepository.extendLoanPeriodDomainAsync(id, extendLoanPeriodDomain);
+
+            if (extendLoanPeriodDomain == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<LoanDto>(extendLoanPeriodDomain));
         }
     }
 }

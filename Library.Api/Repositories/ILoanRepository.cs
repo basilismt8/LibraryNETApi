@@ -8,5 +8,7 @@ namespace Library.Api.Repositories
         Task<List<Loan>> getAllAsync();
         Task<Loan?> getByIdAsync(Guid id);
         Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto);
+        Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan);
+
     }
 }
