@@ -52,7 +52,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpPost("create")]
-        //[validateModel]
+        [validateModel]
         [Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> CreateLoan([FromBody] CreateLoanRequestDto createLoanRequestDto)
         {
