@@ -23,20 +23,6 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
-//builder.Services.AddControllers()
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-//        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-//    });
-
-//builder.Services.AddControllers()
-//        .AddJsonOptions(options =>
-//        {
-//            options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-//            options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-//        });
-//builder.Services.AddDateOnlyTimeOnlyStringConverters();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
