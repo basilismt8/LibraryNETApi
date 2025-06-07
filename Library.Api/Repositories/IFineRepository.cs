@@ -1,4 +1,5 @@
 ﻿using Library.Api.Models.Domain;
+using Library.Api.Models.Dto;
 
 namespace Library.Api.Repositories
 {
@@ -6,5 +7,7 @@ namespace Library.Api.Repositories
     {
         Task<List<Fine>> getAllAsync();
         Task<Fine?> getByIdAsync(Guid id);
+        Task<Fine> addFineAsync(AddFineRequestDto addFineRequestDto);
+        Task<Fine?> processOverdueLoansAsync(Guid id);
     }
 }

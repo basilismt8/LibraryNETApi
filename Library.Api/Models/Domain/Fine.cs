@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using AutoMapper;
+using Library.Api.Models.Dto;
 
 namespace Library.Api.Models.Domain
 {
@@ -16,5 +18,10 @@ namespace Library.Api.Models.Domain
 
         //Navigation properties
         public required Loan Loan { get; set; }
+
+        internal object Select(Func<object, Action<IMappingOperationOptions<object, FineDto>>, FineDto> map)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
