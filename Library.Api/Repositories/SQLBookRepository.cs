@@ -76,6 +76,44 @@ namespace Library.Api.Repositories
             return await dbContext.Books.FirstOrDefaultAsync(x => x.id == id);
         }
 
+        public async Task<List<Book>> RerturnBookAsync(Guid userId, List<Guid> bookIds)
+        {
+            var returnedBooks = new List<Book>();
+
+            foreach (var bookId in bookIds)
+            {
+                var existingBook = await dbContext.Books.FirstOrDefaultAsync(b => b.id == bookId);
+
+                if (existingBook == null)
+                    continue;
+
+
+                existingBook.copiesAvailable += 1;
+                dbContext.Books.Update(existingBook);
+                returnedBooks.Add(existingBook);
+
+                var loan = await dbContext.Loans.FirstOrDefaultAsync(l => l.bookId == bookId && l.userId == userId && l.status == LoanStatus.borrowed);
+
+                if (loan != null)
+                {
+                    loan.status = LoanStatus.returned;
+                    dbContext.Loans.Update(loan);
+
+                    var fine = await dbContext.Fines
+                        .FirstOrDefaultAsync(f => f.userId == userId && f.loanId == loan.id && !f.paid);
+                    if (fine != null)
+                    {
+                        fine.paid = true;
+                        dbContext.Fines.Update(fine);
+                    }
+                }
+
+            }
+
+            await dbContext.SaveChangesAsync();
+            return returnedBooks;
+        }
+
         public async Task<Book?> UpdateAsync(Guid id, Book book)
         {
             var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == id);

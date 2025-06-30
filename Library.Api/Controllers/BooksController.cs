@@ -98,5 +98,22 @@ namespace Library.Api.Controllers
 
             return Ok(mapper.Map<BookDto>(bookDomain));
         }
+
+
+        [HttpPut("returnBook")]
+        [validateModel]
+        [Authorize(Roles = "Librarian")]
+        public async Task<IActionResult> ReturnBooks([FromBody] ReturnBooksRequesDto returnBooksRequest)
+        {
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
+
+            var returnedBooks = await bookRepository.RerturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookIds);
+
+            if (returnedBooks == null || returnedBooks.Count == 0)
+                return NotFound("No books were returned.");
+
+            return Ok(mapper.Map<List<BookDto>>(returnedBooks));
+        }
     }
 }

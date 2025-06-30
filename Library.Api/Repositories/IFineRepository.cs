@@ -8,6 +8,6 @@ namespace Library.Api.Repositories
         Task<List<Fine>> getAllAsync();
         Task<Fine?> getByIdAsync(Guid id);
         Task<Fine> addFineAsync(AddFineRequestDto addFineRequestDto);
-        Task<Fine?> processOverdueLoansAsync(Guid id);
+        Task<List<Fine>> processOverdueLoansAsync(Guid id);
     }
 }
