@@ -33,7 +33,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpGet("getAll")]
-        [Authorize(Roles = "Librarian,Member")]
+        //[Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> getAll() {
             logger.LogInformation("Get all books called");
             var booksDomain = await bookRepository.getAllAsync();
@@ -43,7 +43,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpGet("getById/{id}")]
-        [Authorize(Roles = "Librarian,Member")]
+        //[Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> getById(Guid id)
         {
             var bookDomain = await bookRepository.getByIdAsync(id);
@@ -58,7 +58,7 @@ namespace Library.Api.Controllers
 
         [HttpPost("create")]
         [validateModel]
-        [Authorize(Roles = "Librarian")]
+        //[Authorize(Roles = "Librarian")]
         public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto)
         {
 
@@ -71,7 +71,7 @@ namespace Library.Api.Controllers
 
         [HttpPut("update/{id:Guid}")]
         [validateModel]
-        [Authorize(Roles = "Librarian")]
+        //[Authorize(Roles = "Librarian")]
         public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
         {
             var bookDomain = mapper.Map<Book>(updateBookRequestDto);
@@ -87,7 +87,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpDelete("delete/{id:Guid}")]
-        [Authorize(Roles = "Librarian")]
+        //[Authorize(Roles = "Librarian")]
         public async Task<IActionResult> deleteBook([FromRoute] Guid id)
         {
             var bookDomain = await bookRepository.DeleteAsync(id);
@@ -102,7 +102,7 @@ namespace Library.Api.Controllers
 
         [HttpPut("returnBook")]
         [validateModel]
-        [Authorize(Roles = "Librarian")]
+        //[Authorize(Roles = "Librarian")]
         public async Task<IActionResult> ReturnBooks([FromBody] ReturnBooksRequesDto returnBooksRequest)
         {
             var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
