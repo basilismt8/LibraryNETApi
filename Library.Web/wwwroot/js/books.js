@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (active) tr.classList.add('table-active'); else tr.classList.remove('table-active');
     }
 
-    // Select all (applies to all rows, not just current page)
+    // Select all (applies to all rows, not just current row)
     if (selectAll) {
         selectAll.addEventListener('change', function () {
             rowCheckboxes().forEach(cb => {

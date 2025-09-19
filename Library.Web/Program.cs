@@ -4,6 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<Library.Web.Services.BookService>();
+builder.Services.AddScoped<Library.Web.Services.IBookService>(sp =>
+{
+    // Use named client if needed; here we use default HttpClient
+    var http = sp.GetRequiredService<HttpClient>();
+    var logger = sp.GetRequiredService<ILogger<Library.Web.Services.BookService>>();
+    return new Library.Web.Services.BookService(http, logger);
+});
 
 var app = builder.Build();
 

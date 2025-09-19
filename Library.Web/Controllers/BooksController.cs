@@ -1,35 +1,28 @@
 ﻿using Library.Web.Models.DTO;
+using Library.Web.Models.ViewModels;
+using Library.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Library.Web.Controllers
 {
     public class BooksController : Controller
     {
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly IBookService _bookService;
+        private readonly ILogger<BooksController> _logger;
 
-        public BooksController(IHttpClientFactory httpClientFactory)
+        public BooksController(IBookService bookService, ILogger<BooksController> logger)
         {
-            this.httpClientFactory = httpClientFactory;
+            _bookService = bookService;
+            _logger = logger;
         }
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            List<BookDto> responseBody = new List<BookDto>();
-            try
+            var vm = new BooksPageViewModel
             {
-                var client = httpClientFactory.CreateClient();
-
-                var booksResponse = await client.GetAsync("https://localhost:7256/api/Books/getAll");
-                booksResponse.EnsureSuccessStatusCode();
-                responseBody.AddRange(await booksResponse.Content.ReadFromJsonAsync<IEnumerable<BookDto>>());
-            }
-            catch (Exception e)
-            {
-
-                throw;
-            }
-
-            return View(responseBody);
+                Books = await _bookService.GetAllAsync(cancellationToken)
+            };
+            return View(vm.Books); // keep existing view expecting IEnumerable<BookDto>
         }
     }
 }
