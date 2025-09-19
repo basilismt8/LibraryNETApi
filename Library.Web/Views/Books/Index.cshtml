@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Library.Web.Models.DTO.BookDto>
+﻿@model Library.Web.Models.ViewModels.BooksPageViewModel
 
 @{
     ViewData["Title"] = "Books";
@@ -46,7 +46,7 @@
             </tr>
             </thead>
             <tbody>
-            @foreach (var book in Model)
+            @foreach (var book in Model.Books)
             {
                 <tr data-id="@book.id" data-title="@book.title" data-copies-available="@book.copiesAvailable" data-total-copies="@book.totalCopies">
                     <td><input type="checkbox" class="row-select" /></td>
@@ -60,7 +60,7 @@
         </table>
     </div>
     <div class="d-flex justify-content-between align-items-center px-3 py-1 small text-muted border-top gap-2 flex-wrap">
-        <div id="tableStatus">@Model.Count() items total</div>
+        <div id="tableStatus">@Model.Books.Count() items total</div>
         <div class="d-flex align-items-center gap-2 ms-auto">
             <label class="mb-0 small text-muted">Items per page</label>
             <select id="pageSize" class="form-select form-select-sm" style="width:auto;">

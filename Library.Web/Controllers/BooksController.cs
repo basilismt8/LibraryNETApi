@@ -22,7 +22,7 @@ namespace Library.Web.Controllers
             {
                 Books = await _bookService.GetAllAsync(cancellationToken)
             };
-            return View(vm.Books); // keep existing view expecting IEnumerable<BookDto>
+            return View(vm); // pass the view model
         }
     }
 }
