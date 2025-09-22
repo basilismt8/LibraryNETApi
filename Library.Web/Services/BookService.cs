@@ -46,12 +46,12 @@ namespace Library.Web.Services
             }
         }
 
-        public async Task<Guid> CreateAsync(BookDto book, CancellationToken cancellationToken = default)
+        public async Task<string> CreateAsync(CreateBookDto book, CancellationToken cancellationToken = default)
         {
-            var response = await _http.PostAsJsonAsync(BasePath, book, cancellationToken);
+            var response = await _http.PostAsJsonAsync($"{BasePath}/create", book, cancellationToken);
             response.EnsureSuccessStatusCode();
             var created = await response.Content.ReadFromJsonAsync<BookDto>(cancellationToken: cancellationToken);
-            return created?.id ?? Guid.Empty;
+            return created?.title ?? string.Empty;
         }
 
         public async Task UpdateAsync(Guid id, BookDto book, CancellationToken cancellationToken = default)

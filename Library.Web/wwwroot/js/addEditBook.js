@@ -15,6 +15,7 @@
         const fldTitle = document.getElementById('bookTitle');
         const fldCopiesAvail = document.getElementById('copiesAvailable');
         const fldTotalCopies = document.getElementById('totalCopies');
+        var modeOfModal = "";
 
         function populateFromRow(row){
             if(!row) return;
@@ -24,7 +25,8 @@
             fldTotalCopies.value = row.dataset.totalCopies || '';
         }
 
-        function open(mode){
+        function open(mode) {
+            modeOfModal = mode;
             titleEl.textContent = mode === 'edit' ? 'Edit Book' : 'Add New Book';
             if(mode === 'new') { form.reset(); fldId.value=''; }
             if(mode === 'edit') {
@@ -44,16 +46,41 @@
         openEdit?.addEventListener('click',()=>open('edit'));
         closeBtns.forEach(b=>b?.addEventListener('click',close));
         modal.addEventListener('click',e=>{ if(e.target===modal) close(); });
-        saveBtn.addEventListener('click',()=>{
+        saveBtn.addEventListener('click', async () => {
+            if (modeOfModal === 'new') {
+                console.log('Adding new book...');
+                const payload = {
+                    title: fldTitle.value.trim(),
+                    copiesAvailable: parseInt(fldCopiesAvail.value || '0', 10),
+                    totalCopies: parseInt(fldTotalCopies.value || '0', 10)
+                };
+                const resp = await fetch('/Books/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                console.log('added book is', resp);
+                //close();
+            } else {
+                console.log('Editing existing book...');
+                const payload = {
+                    id: fldId.value || null,
+                    title: fldTitle.value.trim(),
+                    copiesAvailable: parseInt(fldCopiesAvail.value || '0', 10),
+                    totalCopies: parseInt(fldTotalCopies.value || '0', 10)
+                };
+                console.log('Would edit with payload', payload);
+                //close();
+            }
             // placeholder: gather data example
-            const payload = {
-                id: fldId.value || null,
-                title: fldTitle.value.trim(),
-                copiesAvailable: parseInt(fldCopiesAvail.value||'0',10),
-                totalCopies: parseInt(fldTotalCopies.value||'0',10)
-            };
-            console.log('Would submit', payload);
-            close();
+            //const payload = {
+            //    //id: fldId.value || null,
+            //    title: fldTitle.value.trim(),
+            //    copiesAvailable: parseInt(fldCopiesAvail.value||'0',10),
+            //    totalCopies: parseInt(fldTotalCopies.value||'0',10)
+            //};
+            //console.log('Would submit', payload);
+            //close();
         });
     });
 })();

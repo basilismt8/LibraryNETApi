@@ -15,7 +15,7 @@ namespace Library.Web.Controllers
             _bookService = bookService;
             _logger = logger;
         }
-
+        [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var vm = new BooksPageViewModel
@@ -23,6 +23,13 @@ namespace Library.Web.Controllers
                 Books = await _bookService.GetAllAsync(cancellationToken)
             };
             return View(vm); // pass the view model
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateBookDto book, CancellationToken cancellationToken)
+        {
+            var id = await _bookService.CreateAsync(book, cancellationToken);
+            return Json(new { success = true, id });
         }
     }
 }
