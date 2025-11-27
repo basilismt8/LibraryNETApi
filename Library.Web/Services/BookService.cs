@@ -41,7 +41,7 @@ namespace Library.Web.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to fetch book {Id}", id);
+                _logger.LogError(ex, "Failed to fetch this book {Id}", id);
                 return null;
             }
         }
