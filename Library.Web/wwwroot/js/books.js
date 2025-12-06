@@ -33,6 +33,50 @@ document.addEventListener("DOMContentLoaded", function () {
         btnDelete.disabled = selected === 0;
     }
 
+    btnDelete.addEventListener('click', async () => {
+        //const row = selected ? selected.closest('tr') : null;
+        //console.log('deleting books...', populateFromRow(row));
+        const ids = getSelectedData().map(x => x.id);
+        console.log("ids of books for delete is",ids);
+
+
+        //console.log('Editing existing book...');
+        //const payload = {
+        //    id: fldId.value,
+        //    title: fldTitle.value.trim(),
+        //    copiesAvailable: parseInt(fldCopiesAvail.value || '0', 10),
+        //    totalCopies: parseInt(fldTotalCopies.value || '0', 10)
+        //};
+        //const resp = await fetch(`/Books/update/${fldId.value}`, {
+        //    method: 'PUT',
+        //    headers: { 'Content-Type': 'application/json' },
+        //    body: JSON.stringify(payload)
+        //});
+        //console.log('Book edited with payload', resp);
+    });
+    function getSelectedData() {
+        return getSelectedRowElements().map(row => ({
+            id: row.dataset.id,
+            title: row.dataset.title,
+            copiesAvailable: Number(row.dataset.copiesAvailable || 0),
+            totalCopies: Number(row.dataset.totalCopies || 0)
+        }));
+    }
+
+    function getSelectedRowElements() {
+        return [...document.querySelectorAll('tbody .row-select:checked')].map(cb => cb.closest('tr'));
+    }
+
+    function populateFromRow(row) {
+        if (!row) return;
+        const selected = table.querySelectorAll('tbody .row-select:checked');
+        console.log("row is", row, selected);
+        //fldId.value = row.dataset.id || '';
+        //fldTitle.value = row.dataset.title || '';
+        //fldCopiesAvail.value = row.dataset.copiesAvailable || '';
+        //fldTotalCopies.value = row.dataset.totalCopies || '';
+    }
+
     function toggleRowActive(tr, active) {
         if (active) tr.classList.add('table-active'); else tr.classList.remove('table-active');
     }

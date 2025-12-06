@@ -1,0 +1,138 @@
+@page "/books"
+@inject BookService BookService
+
+<div class="table-card">
+    <!-- Toolbar -->
+    <div class="d-flex">
+        <div class="btn-toolbar">
+            <button class="btn btn-primary btn-sm" @onclick="EditBook" disabled="@(!CanEdit)">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" @onclick="DeleteBooks" disabled="@(!CanDelete)">Delete</button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" @bind="SelectAllRows" /></th>
+                    <th>Title</th>
+                    <th>Copies Available</th>
+                    <th>Total Copies</th>
+                </tr>
+                <tr class="filters">
+                    <th></th>
+                    <th><input class="form-control form-control-sm" placeholder="Filter Title" @bind="FilterTitle" /></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in PagedBooks)
+                {
+                    <tr class="@GetRowClass(book)">
+                        <td><input type="checkbox" @bind="book.IsSelected" /></td>
+                        <td>@book.Title</td>
+                        <td>@book.CopiesAvailable</td>
+                        <td>@book.TotalCopies</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer / Pagination -->
+    <div class="border-top d-flex align-items-center justify-content-between p-2">
+        <div id="tableStatus">@($"{FilteredBooks.Count} of {Books.Count} items")</div>
+        <div>
+            <button id="prevPage" @onclick="PrevPage" disabled="@(CurrentPage <= 1)">‹</button>
+            <span id="currentPageDisplay">@CurrentPage / @TotalPages</span>
+            <button id="nextPage" @onclick="NextPage" disabled="@(CurrentPage >= TotalPages)">›</button>
+            <select id="pageSize" @bind="PageSize">
+                @foreach (var size in new int[] { 5, 10, 20, 50 })
+                {
+                    <option value="@size">@size</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<BookWrapper> Books = new();
+    private string FilterTitle = "";
+    private int CurrentPage = 1;
+    private int PageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var books = await BookService.GetBooksAsync();
+        Books = books.Select(b => new BookWrapper(b)).ToList();
+    }
+
+    private IEnumerable<BookWrapper> FilteredBooks =>
+        Books.Where(b => string.IsNullOrWhiteSpace(FilterTitle) || b.Title.Contains(FilterTitle, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<BookWrapper> PagedBooks =>
+        FilteredBooks.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredBooks.Count() / (double)PageSize));
+
+    private bool SelectAllRows
+    {
+        get => FilteredBooks.All(b => b.IsSelected);
+        set
+        {
+            foreach (var b in FilteredBooks)
+                b.IsSelected = value;
+        }
+    }
+
+    private bool CanEdit => Books.Count(b => b.IsSelected) == 1;
+    private bool CanDelete => Books.Any(b => b.IsSelected);
+
+    private void EditBook()
+    {
+        var book = Books.FirstOrDefault(b => b.IsSelected);
+        if (book != null)
+        {
+            // open modal or navigate to edit page
+            Console.WriteLine($"Edit book {book.Id}");
+        }
+    }
+
+    private async Task DeleteBooks()
+    {
+        var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
+        if (ids.Count > 0)
+        {
+            await BookService.DeleteBooksAsync(ids);
+            Books.RemoveAll(b => ids.Contains(b.Id));
+        }
+    }
+
+    private void PrevPage()
+    {
+        if (CurrentPage > 1) CurrentPage--;
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages) CurrentPage++;
+    }
+
+    private string GetRowClass(BookWrapper book) => book.IsSelected ? "table-active" : "";
+
+    // Wrapper to track selection
+    class BookWrapper : Book
+    {
+        public BookWrapper(Book book)
+        {
+            Id = book.Id;
+            Title = book.Title;
+            CopiesAvailable = book.CopiesAvailable;
+            TotalCopies = book.TotalCopies;
+        }
+        public bool IsSelected { get; set; } = false;
+    }
+}

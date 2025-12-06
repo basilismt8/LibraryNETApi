@@ -1,5 +1,6 @@
 ﻿using Library.Api.Data;
 using Library.Api.Models.Domain;
+using Library.Api.Models.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -114,10 +115,15 @@ namespace Library.Api.Repositories
             return returnedBooks;
         }
 
-        public async Task<Book?> UpdateAsync(Guid id, Book book)
+        public async Task<Book?> UpdateAsync(string id, Book book)
         {
-            var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == id);
+            // Convert string → Guid
+            if (!Guid.TryParse(id, out Guid guidId))
+                return null;
+
+            var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == guidId);
             if (existingBook == null) {
+                Console.WriteLine("this book does not exist");
                 return null;
             }
 

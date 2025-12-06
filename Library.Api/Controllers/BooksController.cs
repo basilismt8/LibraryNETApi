@@ -61,7 +61,6 @@ namespace Library.Api.Controllers
         //[Authorize(Roles = "Librarian")]
         public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto)
         {
-
             var bookDomain = mapper.Map<Book>(createBookRequestDto);
 
             bookDomain = await bookRepository.CreateAsync(bookDomain);
@@ -69,10 +68,10 @@ namespace Library.Api.Controllers
             return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpPut("update/{id:Guid}")]
+        [HttpPut("update/{id}")]
         [validateModel]
         //[Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> updateBook([FromRoute] Guid id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
+        public async Task<IActionResult> updateBook([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
         {
             var bookDomain = mapper.Map<Book>(updateBookRequestDto);
 

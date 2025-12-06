@@ -1,5 +1,6 @@
-using System.Net.Http.Json;
 using Library.Web.Models.DTO;
+using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 
 namespace Library.Web.Services
 {
@@ -54,10 +55,12 @@ namespace Library.Web.Services
             return created?.title ?? string.Empty;
         }
 
-        public async Task UpdateAsync(Guid id, BookDto book, CancellationToken cancellationToken = default)
+        public async Task<string> UpdateAsync(string id, UpdateBookDto book, CancellationToken cancellationToken = default)
         {
-            var response = await _http.PutAsJsonAsync($"{BasePath}/{id}", book, cancellationToken);
+            var response = await _http.PutAsJsonAsync($"{BasePath}/update/{id}", book, cancellationToken);
             response.EnsureSuccessStatusCode();
+            var updated = await response.Content.ReadFromJsonAsync<BookDto>(cancellationToken: cancellationToken);
+            return updated?.title ?? string.Empty;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

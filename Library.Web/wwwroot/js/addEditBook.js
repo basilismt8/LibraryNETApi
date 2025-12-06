@@ -54,23 +54,28 @@
                     copiesAvailable: parseInt(fldCopiesAvail.value || '0', 10),
                     totalCopies: parseInt(fldTotalCopies.value || '0', 10)
                 };
-                const resp = await fetch('/Books/create', {
+                const resp = await fetch('/Books/create/one', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 console.log('added book is', resp);
-                //close();
+                close();
             } else {
                 console.log('Editing existing book...');
                 const payload = {
-                    id: fldId.value || null,
+                    id: fldId.value,
                     title: fldTitle.value.trim(),
                     copiesAvailable: parseInt(fldCopiesAvail.value || '0', 10),
                     totalCopies: parseInt(fldTotalCopies.value || '0', 10)
                 };
-                console.log('Would edit with payload', payload);
-                //close();
+                const resp = await fetch(`/Books/update/${fldId.value}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                console.log('Book edited with payload', resp);
+                close();
             }
             // placeholder: gather data example
             //const payload = {

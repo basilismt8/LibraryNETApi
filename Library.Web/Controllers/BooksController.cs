@@ -31,5 +31,12 @@ namespace Library.Web.Controllers
             var id = await _bookService.CreateAsync(book, cancellationToken);
             return Json(new { success = true, id });
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateBookDto book, CancellationToken cancellationToken)
+        {
+            var idUpdated = await _bookService.UpdateAsync(id, book, cancellationToken);
+            return Json(new { success = true, id });
+        }
     }
 }

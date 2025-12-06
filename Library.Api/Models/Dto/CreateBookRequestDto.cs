@@ -5,7 +5,7 @@ namespace Library.Api.Models.Dto
     public class CreateBookRequestDto
     {
         [Required]
-        [MinLength(30, ErrorMessage = "Title must have a minimum 30 characters")]
+        [MinLength(10, ErrorMessage = "Title must have a minimum 30 characters")]
         [MaxLength(255, ErrorMessage = "Title must have a maximum 255 characters")]
         public string title { get; set; } = string.Empty;
         [Range(1, int.MaxValue, ErrorMessage = "copiesAvailable must be at least 1.")]
