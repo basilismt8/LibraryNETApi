@@ -14,6 +14,15 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorWasm", policy =>
+        policy
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(_ => true));
+});
+
 // Add services to the container.
 var logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -110,6 +119,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("BlazorWasm");
 
 app.UseAuthentication();
 

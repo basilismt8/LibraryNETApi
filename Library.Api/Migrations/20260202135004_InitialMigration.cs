@@ -16,7 +16,7 @@ namespace Library.Api.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    title = table.Column<string>(type: "VARCHAR(255)", maxLength: 256, nullable: false),
                     copiesAvailable = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     totalCopies = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
                 },

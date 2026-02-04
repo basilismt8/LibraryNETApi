@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Api.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20250311121944_Initial Migration")]
+    [Migration("20260202135004_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -38,7 +38,8 @@ namespace Library.Api.Migrations
 
                     b.Property<string>("title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("VARCHAR(255)");
 
                     b.Property<int>("totalCopies")
                         .ValueGeneratedOnAdd()

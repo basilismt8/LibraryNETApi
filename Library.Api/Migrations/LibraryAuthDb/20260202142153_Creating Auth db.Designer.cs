@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Api.Migrations.LibraryAuthDb
 {
     [DbContext(typeof(LibraryAuthDbContext))]
-    [Migration("20250322151723_Creating Auth Database")]
-    partial class CreatingAuthDatabase
+    [Migration("20260202142153_Creating Auth db")]
+    partial class CreatingAuthdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

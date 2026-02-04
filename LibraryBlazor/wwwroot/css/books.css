@@ -1,0 +1,221 @@
+﻿/* Card container */
+
+.table-card {
+    background: #fff;
+    border: 1px solid #e6e9ed;
+    border-radius: 12px;
+    padding: 0; /* internal spacing handled by toolbar/footer */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
+    overflow: hidden;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+    /* Toolbar (uses existing markup: first child div inside .table-card) */
+
+    .table-card > .d-flex {
+        padding: 10px 16px 6px;
+        background: #fff;
+        border-bottom: 1px solid #e6e9ed;
+    }
+
+    .table-card .btn-toolbar .btn {
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 6px;
+        padding: 6px 14px;
+        line-height: 1.2;
+    }
+
+    .table-card .btn-outline-secondary.btn-sm, .table-card .btn-outline-danger.btn-sm {
+        background: #fff;
+        border-color: #d1d5db;
+        color: #1f2937;
+    }
+
+        .table-card .btn-outline-secondary.btn-sm:hover, .table-card .btn-outline-danger.btn-sm:hover {
+            background: #f1f5f9;
+        }
+
+    .table-card .btn-primary.btn-sm {
+        background: #1e293b;
+        border-color: #1e293b;
+    }
+
+        .table-card .btn-primary.btn-sm:hover {
+            background: #334155;
+            border-color: #334155;
+        }
+    /* Table base */
+
+    .table-card table {
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 12px;
+    }
+
+        .table-card table thead th {
+            border-bottom: 0;
+        }
+    /* Header row */
+
+    .table-card thead tr:first-child th {
+        background: #F1F5F9;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #334155;
+        border-top: 0;
+        padding-top: 14px; /* increased height */
+        padding-bottom: 14px; /* increased height */
+    }
+    /* Filter row */
+
+    .table-card thead tr.filters {
+        background: #F1F5F9;
+    }
+
+        .table-card thead tr.filters th {
+            border-top: 0;
+            padding-top: 4px;
+            padding-bottom: 10px;
+        }
+
+        .table-card thead tr.filters input.form-control-sm {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            height: 34px;
+            line-height: 34px;
+            padding: 0 10px;
+            box-shadow: none;
+        }
+
+            .table-card thead tr.filters input.form-control-sm:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(30,144,255,0.15);
+            }
+    /* Body rows */
+
+    .table-card tbody tr {
+        transition: background-color .15s;
+    }
+
+        .table-card tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-card tbody tr.table-active {
+            background: #e2e8f0;
+        }
+        /* Increase body row height */
+
+        .table-card tbody tr td {
+            border-top: 0;
+            padding-top: 12px; /* added */
+            padding-bottom: 12px; /* added */
+        }
+        /* Subtle separator for subsequent rows */
+
+        .table-card tbody tr + tr td {
+            border-top: 1px solid #f1f5f9;
+        }
+    /* Checkbox cell tighten */
+
+    .table-card td:first-child, .table-card th:first-child {
+        text-align: center;
+    }
+    /* Footer / pagination section */
+
+    .table-card .border-top {
+        border-top: 1px solid #e2e8f0 !important;
+    }
+
+    .table-card .d-flex.align-items-center > #tableStatus {
+        font-size: 12px;
+        font-weight: 500;
+        color: #475569;
+    }
+    /* Pagination controls */
+
+    .table-card select#pageSize {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 13px;
+        height: 36px;
+    }
+
+        .table-card select#pageSize:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30,144,255,0.15);
+        }
+
+    .table-card #prevPage, .table-card #nextPage {
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #334155;
+        width: 38px;
+        height: 36px;
+        line-height: 34px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color .15s, color .15s, border-color .15s;
+    }
+
+        .table-card #prevPage:hover:not(:disabled), .table-card #nextPage:hover:not(:disabled) {
+            background: #f1f5f9;
+        }
+
+        .table-card #prevPage:disabled, .table-card #nextPage:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+    .table-card #currentPageDisplay {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    /* Utility: smooth focus state for buttons */
+
+    .table-card button:focus-visible {
+        outline: 2px solid rgba(30,144,255,0.4);
+        outline-offset: 2px;
+    }
+    /* Scrollbar (optional, webkit) inside responsive wrapper */
+
+    .table-card .table-responsive::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .table-card .table-responsive::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .table-card .table-responsive::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 6px;
+    }
+
+        .table-card .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+/* Compact adjustments for small screens */
+
+@media (max-width: 900px) {
+    .table-card thead tr.filters th:nth-child(3), .table-card tbody td:nth-child(3) {
+        min-width: 160px;
+    }
+
+    .table-card .btn-toolbar {
+        flex-wrap: wrap;
+    }
+}
