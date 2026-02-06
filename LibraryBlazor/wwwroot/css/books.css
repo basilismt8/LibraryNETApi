@@ -1,5 +1,6 @@
-﻿/* Card container */
+﻿/* Books page table styling inspired by Angular asset tracking layout */
 
+/* Card container */
 .table-card {
     background: #fff;
     border: 1px solid #e6e9ed;
@@ -9,8 +10,8 @@
     overflow: hidden;
     font-family: 'Roboto', Arial, sans-serif;
 }
-    /* Toolbar (uses existing markup: first child div inside .table-card) */
 
+    /* Toolbar (uses existing markup: first child div inside .table-card) */
     .table-card > .d-flex {
         padding: 10px 16px 6px;
         background: #fff;
@@ -28,13 +29,15 @@
         line-height: 1.2;
     }
 
-    .table-card .btn-outline-secondary.btn-sm, .table-card .btn-outline-danger.btn-sm {
+    .table-card .btn-outline-secondary.btn-sm,
+    .table-card .btn-outline-danger.btn-sm {
         background: #fff;
         border-color: #d1d5db;
         color: #1f2937;
     }
 
-        .table-card .btn-outline-secondary.btn-sm:hover, .table-card .btn-outline-danger.btn-sm:hover {
+        .table-card .btn-outline-secondary.btn-sm:hover,
+        .table-card .btn-outline-danger.btn-sm:hover {
             background: #f1f5f9;
         }
 
@@ -47,8 +50,8 @@
             background: #334155;
             border-color: #334155;
         }
-    /* Table base */
 
+    /* Table base */
     .table-card table {
         border-collapse: separate;
         border-spacing: 0;
@@ -58,8 +61,8 @@
         .table-card table thead th {
             border-bottom: 0;
         }
-    /* Header row */
 
+    /* Header row */
     .table-card thead tr:first-child th {
         background: #F1F5F9;
         font-size: 11px;
@@ -70,8 +73,8 @@
         padding-top: 14px; /* increased height */
         padding-bottom: 14px; /* increased height */
     }
-    /* Filter row */
 
+    /* Filter row */
     .table-card thead tr.filters {
         background: #F1F5F9;
     }
@@ -97,8 +100,8 @@
                 outline: none;
                 box-shadow: 0 0 0 2px rgba(30,144,255,0.15);
             }
-    /* Body rows */
 
+    /* Body rows */
     .table-card tbody tr {
         transition: background-color .15s;
     }
@@ -110,25 +113,24 @@
         .table-card tbody tr.table-active {
             background: #e2e8f0;
         }
-        /* Increase body row height */
 
+        /* Increase body row height */
         .table-card tbody tr td {
             border-top: 0;
             padding-top: 12px; /* added */
             padding-bottom: 12px; /* added */
         }
         /* Subtle separator for subsequent rows */
-
         .table-card tbody tr + tr td {
             border-top: 1px solid #f1f5f9;
         }
-    /* Checkbox cell tighten */
 
+    /* Checkbox cell tighten */
     .table-card td:first-child, .table-card th:first-child {
         text-align: center;
     }
-    /* Footer / pagination section */
 
+    /* Footer / pagination section */
     .table-card .border-top {
         border-top: 1px solid #e2e8f0 !important;
     }
@@ -138,8 +140,8 @@
         font-weight: 500;
         color: #475569;
     }
-    /* Pagination controls */
 
+    /* Pagination controls */
     .table-card select#pageSize {
         border: 1px solid #d1d5db;
         background: #fff;
@@ -171,7 +173,8 @@
         transition: background-color .15s, color .15s, border-color .15s;
     }
 
-        .table-card #prevPage:hover:not(:disabled), .table-card #nextPage:hover:not(:disabled) {
+        .table-card #prevPage:hover:not(:disabled),
+        .table-card #nextPage:hover:not(:disabled) {
             background: #f1f5f9;
         }
 
@@ -184,14 +187,14 @@
         font-weight: 600;
         color: #1e293b;
     }
-    /* Utility: smooth focus state for buttons */
 
+    /* Utility: smooth focus state for buttons */
     .table-card button:focus-visible {
         outline: 2px solid rgba(30,144,255,0.4);
         outline-offset: 2px;
     }
-    /* Scrollbar (optional, webkit) inside responsive wrapper */
 
+    /* Scrollbar (optional, webkit) inside responsive wrapper */
     .table-card .table-responsive::-webkit-scrollbar {
         height: 10px;
     }
@@ -208,10 +211,11 @@
         .table-card .table-responsive::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-/* Compact adjustments for small screens */
 
+/* Compact adjustments for small screens */
 @media (max-width: 900px) {
-    .table-card thead tr.filters th:nth-child(3), .table-card tbody td:nth-child(3) {
+    .table-card thead tr.filters th:nth-child(3),
+    .table-card tbody td:nth-child(3) {
         min-width: 160px;
     }
 
