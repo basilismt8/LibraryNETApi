@@ -1,0 +1,68 @@
+﻿@using LibraryBlazor.Features.Books.Models
+
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center p-2 border-bottom bg-white">
+        <div class="btn-toolbar gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnEdit" disabled="@(!CanEdit)">
+                <i class="bi bi-pencil"></i> Edit
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="OnDelete" disabled="@(!CanDelete)">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary btn-sm" @onclick="OnNew">
+                <i class="bi bi-plus"></i> New
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" @bind="SelectAllRows" /></th>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Copies Available</th>
+                    <th>Total Copies</th>
+                </tr>
+                <tr class="filters">
+                    <th></th>
+                    <th><input class="form-control form-control-sm" placeholder="Filter Id" value="@FilterId" @oninput="OnFilterIdInput" /></th>
+                    <th><input class="form-control form-control-sm" placeholder="Filter Title" value="@FilterTitle" @oninput="OnFilterTitleInput" /></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in PagedItems)
+                {
+                    <tr class="@GetRowClass(book)">
+                        <td><input type="checkbox" @bind="book.IsSelected" /></td>
+                        <td>@book.Id</td>
+                        <td>@book.Title</td>
+                        <td>@book.CopiesAvailable</td>
+                        <td>@book.TotalCopies</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="border-top d-flex align-items-center justify-content-between p-2">
+        <div>@($"{FilteredItems.Count()} of {Items.Count} items")</div>
+        <div>
+            <button @onclick="PrevPage" disabled="@(CurrentPage <= 1)">‹</button>
+            <span>@CurrentPage / @TotalPages</span>
+            <button @onclick="NextPage" disabled="@(CurrentPage >= TotalPages)">›</button>
+
+            <select @onchange="OnPageSizeChanged">
+                @foreach (var size in new[] { 5, 10, 20, 50 })
+                {
+                    <option value="@size" selected="@(size == PageSize)">@size</option>
+                }
+            </select>
+        </div>
+    </div>
+</div>
