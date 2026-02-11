@@ -1,0 +1,133 @@
+﻿/* Modal overlay */
+.book-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.55);
+    backdrop-filter: blur(2px);
+    display: none;
+    z-index: 1050;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: auto;
+    padding: 40px 20px;
+}
+
+    .book-modal-overlay.show {
+        display: flex;
+    }
+
+.book-modal {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 860px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.18),0 8px 10px -6px rgba(0,0,0,0.12);
+    position: relative;
+    animation: scaleIn .15s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: translateY(8px) scale(.98);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.book-modal-header {
+    padding: 22px 28px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.book-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: #0f172a;
+}
+
+.book-modal-close {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475569;
+}
+
+    .book-modal-close:hover {
+        background: #f1f5f9;
+    }
+
+.book-modal-body {
+    padding: 8px 28px 24px;
+}
+
+.delete-confirmation-message {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #7f1d1d;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+.book-modal-footer {
+    padding: 16px 28px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.bm-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color .15s, box-shadow .15s;
+}
+
+    .bm-btn:focus-visible {
+        outline: 2px solid rgba(30,144,255,0.4);
+        outline-offset: 2px;
+    }
+
+.bm-btn-secondary {
+    background: #fff;
+    border-color: #d1d5db;
+    color: #1e293b;
+}
+
+    .bm-btn-secondary:hover {
+        background: #f1f5f9;
+    }
+
+.bm-btn-primary {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #fff;
+}
+
+    .bm-btn-primary:hover {
+        background: #334155;
+        border-color: #334155;
+    }

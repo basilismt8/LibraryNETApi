@@ -12,29 +12,29 @@ public sealed class BookApi
         _api = api;
     }
 
-    public Task<IReadOnlyList<BookDto>?> GetBooksAsync(CancellationToken cancellationToken = default)
-        => _api.GetAsync<IReadOnlyList<BookDto>>("api/books/getAll", cancellationToken);
+    public Task<ApiResult<IReadOnlyList<BookDto>>> GetBooksAsync(CancellationToken cancellationToken = default)
+        => _api.GetResultAsync<IReadOnlyList<BookDto>>("api/books/getAll", cancellationToken);
 
-    public Task<BookDto?> GetBookByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => _api.GetAsync<BookDto>($"api/books/getById/{id}", cancellationToken);
+    public Task<ApiResult<BookDto>> GetBookByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        => _api.GetResultAsync<BookDto>($"api/books/getById/{id}", cancellationToken);
 
-    public Task CreateBookAsync(CreateBookRequestDto body, CancellationToken cancellationToken = default)
-        => _api.PostAsync("api/books/create", new
-        {
-            title = body.Title,
-            copiesAvailable = body.CopiesAvailable,
-            totalCopies = body.TotalCopies
-        }, cancellationToken);
+    public Task<ApiResult> CreateBookAsync( CreateBookRequestDto body, CancellationToken cancellationToken = default)
+    => _api.PostAsync("api/books/create", new
+    {
+        title = body.Title,
+        copiesAvailable = body.CopiesAvailable,
+        totalCopies = body.TotalCopies
+    }, cancellationToken);
 
-    public Task UpdateBookAsync(Guid id, UpdateBookRequestDto body, CancellationToken cancellationToken = default)
-        => _api.PutAsync($"api/books/update/{id}", new
-        {
-            title = body.Title,
-            copiesAvailable = body.CopiesAvailable,
-            totalCopies = body.TotalCopies
-        }, cancellationToken);
+    public Task<ApiResult> UpdateBookAsync( Guid id, UpdateBookRequestDto body, CancellationToken cancellationToken = default)
+    => _api.PutAsync($"api/books/update/{id}", new
+    {
+        title = body.Title,
+        copiesAvailable = body.CopiesAvailable,
+        totalCopies = body.TotalCopies
+    }, cancellationToken);
 
-    public Task DeleteBookAsync(Guid id, CancellationToken cancellationToken = default)
-        => _api.DeleteAsync($"api/books/delete/{id}", cancellationToken);
+    public Task<ApiResult> DeleteBookAsync(Guid id, CancellationToken cancellationToken = default)
+        => _api.DeleteResultAsync($"api/books/delete/{id}", cancellationToken);
 
 }

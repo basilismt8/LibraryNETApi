@@ -1,0 +1,19 @@
+﻿@if (IsOpen)
+{
+    <div class="book-modal-overlay show" role="dialog" aria-modal="true" @onclick="HandleCancelAsync">
+        <div class="book-modal" @onclick:stopPropagation>
+            <div class="book-modal-header">
+                <h3 class="book-modal-title">Delete confirmation</h3>
+            </div>
+
+            <div class="book-modal-body">
+                <div class="delete-confirmation-message" role="alert">@Message</div>
+            </div>
+
+            <div class="book-modal-footer">
+                <button type="button" class="bm-btn bm-btn-secondary" @onclick="HandleCancelAsync">Cancel</button>
+                <button type="button" class="bm-btn bm-btn-primary" @onclick="OnYes">Yes</button>
+            </div>
+        </div>
+    </div>
+}

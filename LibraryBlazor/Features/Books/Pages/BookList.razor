@@ -1,6 +1,7 @@
 @page "/books"
 @using LibraryBlazor.Features.Books.Models
 @using LibraryBlazor.Features.Books.Components
+@using LibraryBlazor.Http
 @inject LibraryBlazor.Features.Books.Services.BookApi BookApi
 
 <PageTitle>Books</PageTitle>
@@ -16,7 +17,7 @@
             PageSizeChanged="@(v => PageSize = v)"
             OnNew="OpenNew"
             OnEdit="OpenEdit"
-            OnDelete="DeleteSelected" />
+            OnDelete="OpenDelete" />
 
 <AddEditBookModal IsOpen="@_showModal"
                   IsOpenChanged="@(v => _showModal = v)"
@@ -27,6 +28,12 @@
                   OnCancel="CloseModal"
                   OnSave="SaveAsync" />
 
+<ConfirmDeletionModal IsOpen="@_showDeleteModal"
+                      IsOpenChanged="@(v => _showDeleteModal = v)"
+                      numberOfSelectedBooks="@_numberOfSelectedBooks"
+                      OnCancel="CloseDeleteModal"
+                      OnYes="DeleteSelected" />
+
 @code {
     private List<BookRowVm> Books = new();
 
@@ -34,8 +41,10 @@
     private string FilterTitle = "";
     private int CurrentPage = 1;
     private int PageSize = 10;
+    private int _numberOfSelectedBooks = 0;
 
     private bool _showModal;
+    private bool _showDeleteModal;
     private bool _saving;
     private string? _modalError;
     private Guid? _editingId;
@@ -45,8 +54,15 @@
 
     private async Task ReloadAsync()
     {
-        var books = await BookApi.GetBooksAsync();
-        Books = (books ?? Array.Empty<BookDto>())
+        var result = await BookApi.GetBooksAsync();
+        if (!result.Success)
+        {
+            Books = new();
+            _modalError = result.Message;
+            return;
+        }
+
+        Books = (result.Data ?? Array.Empty<BookDto>())
             .Select(b => new BookRowVm(b))
             .ToList();
     }
@@ -78,14 +94,27 @@
         return Task.CompletedTask;
     }
 
+    private Task OpenDelete()
+    {
+        var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
+        _numberOfSelectedBooks = ids.Count;
+        _showDeleteModal = true;
+        return Task.CompletedTask;
+    }
+
     private async Task DeleteSelected()
     {
         var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
         foreach (var id in ids)
         {
-            await BookApi.DeleteBookAsync(id);
+            var result = await BookApi.DeleteBookAsync(id);
+            if (!result.Success)
+            {
+                _modalError = result.Message ?? "Failed to delete book.";
+                return;
+            }
         }
-
+        _showDeleteModal = false;
         Books.RemoveAll(b => ids.Contains(b.Id));
     }
 
@@ -94,6 +123,11 @@
         if (_saving) return;
         _showModal = false;
         _modalError = null;
+    }
+
+    private void CloseDeleteModal()
+    {
+        _showDeleteModal = false;
     }
 
     private async Task SaveAsync()
@@ -106,37 +140,54 @@
             if (string.IsNullOrWhiteSpace(_form.Title))
             {
                 _modalError = "Title is required.";
-                _saving = false;
-                StateHasChanged();
                 return;
             }
 
+            ApiResult result;
+
             if (_editingId is null)
             {
-                await BookApi.CreateBookAsync(new CreateBookRequestDto(
-                    _form.Title.Trim(),
-                    _form.CopiesAvailable,
-                    _form.TotalCopies));
+                result = await BookApi.CreateBookAsync(
+                    new CreateBookRequestDto(
+                        _form.Title.Trim(),
+                        _form.CopiesAvailable,
+                        _form.TotalCopies));
             }
             else
             {
-                await BookApi.UpdateBookAsync(_editingId.Value, new UpdateBookRequestDto(
-                    _form.Title.Trim(),
-                    _form.CopiesAvailable,
-                    _form.TotalCopies));
+                result = await BookApi.UpdateBookAsync(
+                    _editingId.Value,
+                    new UpdateBookRequestDto(
+                        _form.Title.Trim(),
+                        _form.CopiesAvailable,
+                        _form.TotalCopies));
+            }
+
+            if (!result.Success)
+            {
+                if (result.ValidationErrors != null && result.ValidationErrors.Any())
+                {
+                    var messages = result.ValidationErrors
+                        .SelectMany(e => e.Value)
+                        .ToList();
+
+                    _modalError = string.Join("\n", messages);
+                }
+                else
+                {
+                    _modalError = result.Message ?? "Unknown error";
+                }
+
+                return;
             }
 
             _showModal = false;
             await ReloadAsync();
         }
-        catch (Exception ex)
-        {
-            _modalError = ex.Message;
-            StateHasChanged();
-        }
         finally
         {
             _saving = false;
+            StateHasChanged();
         }
     }
 }
