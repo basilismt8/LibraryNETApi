@@ -1,0 +1,22 @@
+@page "/logout"
+@inject LibraryBlazor.Auth.JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@layout LibraryBlazor.Layout.EmptyLayout
+
+<PageTitle>Logout</PageTitle>
+
+<div class="login-page">
+    <div class="login-bg">
+        <div class="login-card">
+            <h2 class="login-title">Signing out...</h2>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthStateProvider.SignOutAsync();
+        Nav.NavigateTo("/login", replace: true);
+    }
+}

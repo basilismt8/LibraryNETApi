@@ -13,12 +13,12 @@ public static class HttpExtensions
             throw new InvalidOperationException("Missing configuration key 'Api:BaseUrl'.");
         }
 
-        services.AddScoped(sp => new HttpClient
-        {
-            BaseAddress = new Uri(baseUrl, UriKind.Absolute)
-        });
+        services.AddScoped<TokenHandler>();
 
-        services.AddScoped<ApiClient>();
+        services.AddHttpClient<ApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
+        }).AddHttpMessageHandler<TokenHandler>();
 
         return services;
     }

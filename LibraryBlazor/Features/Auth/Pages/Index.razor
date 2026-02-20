@@ -1,0 +1,22 @@
+@page "/"
+@inject LibraryBlazor.Auth.TokenService TokenService
+@inject NavigationManager Nav
+@layout LibraryBlazor.Layout.EmptyLayout
+
+<PageTitle>Loading...</PageTitle>
+
+<div class="login-page">
+    <div class="login-bg">
+        <div class="login-card">
+            <h2 class="login-title">Loading...</h2>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await TokenService.GetValidTokenAsync().ConfigureAwait(false);
+        Nav.NavigateTo(string.IsNullOrWhiteSpace(token) ? "/login" : "/books", replace: true);
+    }
+}

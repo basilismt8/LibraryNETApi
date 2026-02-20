@@ -1,0 +1,46 @@
+@page "/login"
+@using LibraryBlazor.Features.Auth.Models
+@layout LibraryBlazor.Layout.EmptyLayout
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-page">
+    <div class="login-bg">
+        <div class="login-card" role="form" aria-label="Login form">
+            <h2 class="login-title">Login</h2>
+
+            @if (!string.IsNullOrWhiteSpace(_error))
+            {
+                <div class="login-error" role="alert">@_error</div>
+            }
+
+            <div class="login-field">
+                <label>Email ID</label>
+                <input type="email" @bind="Model.Email" placeholder="Email ID" />
+            </div>
+
+            <div class="login-field">
+                <label>Password</label>
+                <input type="password" @bind="Model.Password" placeholder="Password" />
+            </div>
+
+            <div class="login-row">
+                <label class="login-remember">
+                    <input type="checkbox" @bind="Model.RememberMe" />
+                    <span>Remember me</span>
+                </label>
+
+                <a class="login-link" href="#">Forgot Password?</a>
+            </div>
+
+            <button type="button" class="login-button" @onclick="SignInAsync">
+                @(_saving ? "Logging in..." : "Login")
+            </button>
+
+            <div class="login-footer">
+                <span>Don't have an account?</span>
+                <a class="login-link" href="#">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
