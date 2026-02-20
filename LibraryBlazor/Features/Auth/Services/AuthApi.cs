@@ -18,4 +18,12 @@ public sealed class AuthApi
             username = body.Username,
             password = body.Password
         }, cancellationToken);
+
+    public Task<ApiResult<string>> RegisterAsync(RegisterRequestDto body, CancellationToken cancellationToken = default)
+        => _api.PostResultAsync<string, object>("api/auth/register", new
+        {
+            username = body.Username,
+            password = body.Password,
+            roles = body.Roles
+        }, cancellationToken);
 }

@@ -1,13 +1,13 @@
-@page "/login"
+@page "/register"
 @using LibraryBlazor.Features.Auth.Models
 @layout LibraryBlazor.Layout.EmptyLayout
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Register</PageTitle>
 
 <div class="login-page">
     <div class="login-bg">
-        <div class="login-card" role="form" aria-label="Login form">
-            <h2 class="login-title">Login</h2>
+        <div class="login-card" role="form" aria-label="Register form">
+            <h2 class="login-title">Register</h2>
 
             @if (!string.IsNullOrWhiteSpace(_error))
             {
@@ -24,22 +24,18 @@
                 <input type="password" @bind="Model.Password" placeholder="Password" />
             </div>
 
-            <div class="login-row">
-                <label class="login-remember">
-                    <input type="checkbox" @bind="Model.RememberMe" />
-                    <span>Remember me</span>
-                </label>
-
-                <a class="login-link" href="#">Forgot Password?</a>
+            <div class="login-field">
+                <label>Confirm Password</label>
+                <input type="password" @bind="Model.ConfirmPassword" placeholder="Confirm Password" />
             </div>
 
-            <button type="button" class="login-button" @onclick="SignInAsync">
-                @(_saving ? "Logging in..." : "Login")
+            <button type="button" class="login-button" @onclick="RegisterAsync">
+                @(_saving ? "Registering..." : "Register")
             </button>
 
             <div class="login-footer">
-                <span>Don't have an account?</span>
-                <NavLink class="login-link" href="register">Register</NavLink>
+                <span>Already have an account?</span>
+                <NavLink class="login-link" href="login">Login</NavLink>
             </div>
         </div>
     </div>

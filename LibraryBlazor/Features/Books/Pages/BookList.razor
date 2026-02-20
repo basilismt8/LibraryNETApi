@@ -28,11 +28,15 @@
                   OnCancel="CloseModal"
                   OnSave="SaveAsync" />
 
-<ConfirmDeletionModal IsOpen="@_showDeleteModal"
-                      IsOpenChanged="@(v => _showDeleteModal = v)"
-                      numberOfSelectedBooks="@_numberOfSelectedBooks"
-                      OnCancel="CloseDeleteModal"
-                      OnYes="DeleteSelected" />
+<ConfirmationModal IsOpen="@_showDeleteModal"
+                   IsOpenChanged="@(v => _showDeleteModal = v)"
+                   Title="Delete confirmation"
+                   Message="@DeleteMessage"
+                   IsWarning="true"
+                   CancelText="Cancel"
+                   ConfirmText="Yes"
+                   OnCancel="CloseDeleteModal"
+                   OnConfirm="DeleteSelected" />
 
 @code {
     private List<BookRowVm> Books = new();
@@ -101,6 +105,10 @@
         _showDeleteModal = true;
         return Task.CompletedTask;
     }
+
+    private string DeleteMessage => _numberOfSelectedBooks > 1
+        ? "Are you sure that you want to delete these books?"
+        : "Are you sure that you want to delete this book?";
 
     private async Task DeleteSelected()
     {

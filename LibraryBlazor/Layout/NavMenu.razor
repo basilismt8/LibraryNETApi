@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject LibraryBlazor.Auth.JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">LibraryBlazor</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -9,7 +12,7 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
+        @* <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
@@ -23,7 +26,7 @@
             <NavLink class="nav-link" href="weather">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
-        </div>
+        </div> *@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="books">
                 <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Books
@@ -32,9 +35,13 @@
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="logout">
+                    <a class="nav-link"
+                       href=""
+                       @onclick="OpenLogoutConfirm"
+                       @onclick:preventDefault
+                       @onclick:stopPropagation>
                         <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
-                    </NavLink>
+                    </a>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -48,13 +55,35 @@
     </nav>
 </div>
 
+<ConfirmationModal IsOpen="@_showLogoutConfirm"
+                   IsOpenChanged="@(v => _showLogoutConfirm = v)"
+                   Title="Logout"
+                   Message="Are you sure you want to logout?"
+                   CancelText="Cancel"
+                   ConfirmText="Logout"
+                   OnConfirm="ConfirmLogoutAsync" />
+
 @code {
     private bool collapseNavMenu = true;
+
+    private bool _showLogoutConfirm;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private Task OpenLogoutConfirm()
+    {
+        _showLogoutConfirm = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task ConfirmLogoutAsync()
+    {
+        await AuthStateProvider.SignOutAsync();
+        Nav.NavigateTo("/login", replace: true);
     }
 }
