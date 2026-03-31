@@ -1,63 +1,76 @@
 ﻿@inject LibraryBlazor.Auth.JwtAuthStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">LibraryBlazor</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
+<div class="sidebar-root @(_sidebarCollapsed ? "collapsed" : "")">
+    <div class="sidebar-brand">
+        <div class="brand-mark">
+            <i class="bi bi-book-half"></i>
+        </div>
+        <div class="brand-info">
+            <span class="brand-name">Library</span>
+            <span class="brand-sub">Management</span>
+        </div>
+        <button class="mobile-toggle" title="Navigation menu" @onclick="ToggleNavMenu">
+            <i class="bi bi-list"></i>
         </button>
     </div>
-</div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        @* <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+    <div class="sidebar-body @(collapseNavMenu ? "collapse" : "")">
+        <div class="nav-group">
+            <span class="nav-group-label">Menu</span>
+
+            <div class="nav-item">
+                <NavLink class="nav-pill" href="books" Match="NavLinkMatch.Prefix">
+                    <span class="pill-icon"><i class="bi bi-book"></i></span>
+                    <span class="pill-text">Books</span>
+                </NavLink>
+            </div>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-pill" href="loans" Match="NavLinkMatch.Prefix">
+                            <span class="pill-icon"><i class="bi bi-clipboard-check"></i></span>
+                            <span class="pill-text">Loans</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
+
+        <div class="nav-spacer"></div>
+        <div class="nav-divider"></div>
+
+        <div class="nav-group nav-group-bottom">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item">
+                        <a class="nav-pill nav-pill-danger"
+                           href=""
+                           @onclick="OpenLogoutConfirm"
+                           @onclick:preventDefault
+                           @onclick:stopPropagation>
+                            <span class="pill-icon"><i class="bi bi-box-arrow-left"></i></span>
+                            <span class="pill-text">Logout</span>
+                        </a>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-pill" href="login">
+                            <span class="pill-icon"><i class="bi bi-box-arrow-in-right"></i></span>
+                            <span class="pill-text">Login</span>
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div> *@
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="books">
-                <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Books
-            </NavLink>
-        </div>
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="loans">
-                        <span class="bi bi-loans-nav-menu" aria-hidden="true"></span> Loans
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <a class="nav-link"
-                       href=""
-                       @onclick="OpenLogoutConfirm"
-                       @onclick:preventDefault
-                       @onclick:stopPropagation>
-                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
-                    </a>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
+
+        <button class="collapse-btn" @onclick="ToggleSidebar"
+                title="@(_sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar")">
+            <i class="bi @(_sidebarCollapsed ? "bi-chevron-right" : "bi-chevron-left")"></i>
+        </button>
+    </div>
 </div>
 
 <ConfirmationModal IsOpen="@_showLogoutConfirm"
@@ -70,14 +83,17 @@
 
 @code {
     private bool collapseNavMenu = true;
-
+    private bool _sidebarCollapsed;
     private bool _showLogoutConfirm;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ToggleSidebar()
+    {
+        _sidebarCollapsed = !_sidebarCollapsed;
     }
 
     private Task OpenLogoutConfirm()

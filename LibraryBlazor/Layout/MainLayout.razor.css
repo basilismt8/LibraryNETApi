@@ -9,8 +9,9 @@ main {
 }
 
 .sidebar {
-    background: rgba(85, 66, 59, 0.78);
-    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    background: #2c1d16;
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+    flex-shrink: 0;
 }
 
 .top-row {
@@ -53,7 +54,6 @@ main {
     }
 
     .sidebar {
-        width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
