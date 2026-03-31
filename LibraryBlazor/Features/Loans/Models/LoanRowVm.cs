@@ -8,7 +8,7 @@ namespace LibraryBlazor.Features.Loans.Models
         public LoanRowVm(LoanDto dto)
         {
             Id = dto.id;
-            BookId = dto.bookId;
+            BookCopyId = dto.bookCopyId;
             UserId = dto.userId;
             LoanDate = dto.loanDate;
             DueDate = dto.dueDate;
@@ -18,7 +18,7 @@ namespace LibraryBlazor.Features.Loans.Models
 
 
         public Guid Id { get; set; }
-        public Guid BookId { get; set; }
+        public Guid BookCopyId { get; set; }
         public Guid UserId { get; set; }
         public DateOnly LoanDate { get; set; }
         public DateOnly DueDate { get; set; }

@@ -2,7 +2,7 @@
 {
     public sealed record LoanDto(
          Guid id,
-         Guid bookId,
+         Guid bookCopyId,
          Guid userId,
          DateOnly loanDate,
          DateOnly dueDate,
