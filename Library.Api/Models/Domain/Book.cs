@@ -10,7 +10,7 @@ namespace Library.Api.Models.Domain
         public int copiesAvailable { get; set; }
         public int totalCopies { get; set; }
 
-        // Navigation property: One book can have many loans
-        public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+        // Navigation property: One book can have many copies
+        public ICollection<BookCopy> BookCopies { get; set; } = new List<BookCopy>();
     }
 }

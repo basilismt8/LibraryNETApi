@@ -7,10 +7,11 @@ namespace Library.Api.Data
     {
         public LibraryDbContext(DbContextOptions<LibraryDbContext> dbContextOptions) : base(dbContextOptions)
         {
-            
+
         }
 
         public DbSet<Book> Books { get; set; }
+        public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Fine> Fines { get; set; }
 
@@ -24,11 +25,27 @@ namespace Library.Api.Data
 
             modelBuilder.Entity<Book>()
                 .Property(b => b.copiesAvailable)
-                .HasDefaultValue(1); // Sets default value of 1
+                .HasDefaultValue(0); // Sets default value of 0
 
             modelBuilder.Entity<Book>()
                 .Property(b => b.totalCopies)
-                .HasDefaultValue(1); // Sets default value of 1
+                .HasDefaultValue(0); // Sets default value of 0
+
+            // BookCopy configuration
+            modelBuilder.Entity<BookCopy>()
+                .Property(bc => bc.copyCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnType("VARCHAR(50)");
+
+            modelBuilder.Entity<BookCopy>()
+                .HasIndex(bc => bc.copyCode)
+                .IsUnique(); // Unique index for copyCode
+
+            modelBuilder.Entity<BookCopy>()
+                .Property(bc => bc.status)
+                .HasDefaultValue(CopyStatus.Available)
+                .HasConversion<string>(); // Store CopyStatus as string in database
 
             modelBuilder.Entity<Loan>()
                 .Property(l => l.loanDate)
@@ -37,12 +54,12 @@ namespace Library.Api.Data
 
             modelBuilder.Entity<Loan>()
                 .Property(l => l.dueDate)
-                .IsRequired(); // Ensures title is NOT NULL
+                .IsRequired(); // Ensures dueDate is NOT NULL
 
             modelBuilder.Entity<Loan>()
                 .Property(l => l.status)
                 .HasDefaultValue(LoanStatus.borrowed) // Default at database level
-                .HasConversion<string>(); // Store as string in database (optional)
+                .HasConversion<string>(); // Store as string in database
 
             modelBuilder.Entity<Fine>()
                 .Property(f => f.fineDate)
@@ -62,12 +79,19 @@ namespace Library.Api.Data
 
             // Relationships
 
-            // Book:Loan 1:N
+            // Book:BookCopy 1:N (Cascade delete)
+            modelBuilder.Entity<BookCopy>()
+                .HasOne(bc => bc.Book) // BookCopy has one Book
+                .WithMany(b => b.BookCopies) // Book has many BookCopies
+                .HasForeignKey(bc => bc.bookId) // Foreign key in BookCopy table
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete from Book to BookCopies
+
+            // BookCopy:Loan 1:N (Cascade delete)
             modelBuilder.Entity<Loan>()
-                .HasOne(l => l.Book) // Loan has one Book
-                .WithMany(b => b.Loans) // Book has many Loans
-                .HasForeignKey(l => l.bookId) // Foreign key in Loan table
-                .OnDelete(DeleteBehavior.Cascade); // Optional: Cascade delete
+                .HasOne(l => l.BookCopy) // Loan has one BookCopy
+                .WithMany(bc => bc.Loans) // BookCopy has many Loans
+                .HasForeignKey(l => l.bookCopyId) // Foreign key in Loan table
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete from BookCopy to Loans
 
             // Loan:Fine 1:1
             modelBuilder.Entity<Fine>()

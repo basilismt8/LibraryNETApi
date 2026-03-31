@@ -9,6 +9,7 @@ namespace Library.Api.Repositories
         Task<Book> CreateAsync(Book book);
         Task<Book?> UpdateAsync(string id, Book book);
         Task<Book?> DeleteAsync(Guid id);
-        Task<List<Book>> RerturnBookAsync(Guid userId, List<Guid> bookIds);
+        Task<Loan?> BorrowBookAsync(Guid userId, Guid bookId, DateOnly dueDate);
+        Task<Book?> ReturnBookAsync(Guid userId, Guid bookCopyId);
     }
 }

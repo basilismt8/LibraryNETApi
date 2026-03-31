@@ -102,17 +102,17 @@ namespace Library.Api.Controllers
         [HttpPut("returnBook")]
         [validateModel]
         //[Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> ReturnBooks([FromBody] ReturnBooksRequesDto returnBooksRequest)
+        public async Task<IActionResult> ReturnBook([FromBody] ReturnBooksRequesDto returnBooksRequest)
         {
             var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
-            var returnedBooks = await bookRepository.RerturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookIds);
+            var returnedBook = await bookRepository.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId);
 
-            if (returnedBooks == null || returnedBooks.Count == 0)
-                return NotFound("No books were returned.");
+            if (returnedBook == null)
+                return NotFound("Book was not returned.");
 
-            return Ok(mapper.Map<List<BookDto>>(returnedBooks));
+            return Ok(mapper.Map<BookDto>(returnedBook));
         }
     }
 }
