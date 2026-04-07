@@ -22,6 +22,8 @@ public partial class BooksTable
     [Parameter] public EventCallback OnNew { get; set; }
     [Parameter] public EventCallback OnEdit { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public EventCallback OnLoan { get; set; }
+
 
     private IEnumerable<BookRowVm> FilteredItems =>
         Items.Where(b =>
@@ -35,6 +37,8 @@ public partial class BooksTable
 
     private bool CanEdit => Items.Count(b => b.IsSelected) == 1;
     private bool CanDelete => Items.Any(b => b.IsSelected);
+    private bool CanLoan => Items.Any(b => b.IsSelected);
+
 
     private bool SelectAllRows
     {

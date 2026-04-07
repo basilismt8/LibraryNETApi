@@ -11,11 +11,15 @@
                     <i class="bi bi-trash"></i> Delete Book(s)
                 </button>
             </div>
-            <div>
+            <div class="btn-toolbar gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnLoan" disabled="@(!CanLoan)">
+                    <i class="bi bi-plus"></i> Loan Book(s)
+                </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnNew">
                     <i class="bi bi-plus"></i> New Book
                 </button>
             </div>
+            
         </AuthorizeView>
     </div>
 

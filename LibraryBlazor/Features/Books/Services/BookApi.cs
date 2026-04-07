@@ -1,5 +1,6 @@
 using LibraryBlazor.Features.Books.Models;
 using LibraryBlazor.Http;
+using System.Text.Json;
 
 namespace LibraryBlazor.Features.Books.Services;
 
@@ -18,12 +19,19 @@ public sealed class BookApi
     public Task<ApiResult<BookDto>> GetBookByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => _api.GetResultAsync<BookDto>($"api/books/getById/{id}", cancellationToken);
 
-    public Task<ApiResult> CreateBookAsync( CreateBookRequestDto body, CancellationToken cancellationToken = default)
+    public Task<ApiResult> CreateBookAsync(CreateBookRequestDto body, CancellationToken cancellationToken = default)
     => _api.PostAsync("api/books/create", new
     {
         title = body.Title,
         copiesAvailable = body.CopiesAvailable,
         totalCopies = body.TotalCopies
+    }, cancellationToken);
+
+    public Task<ApiResult> CreateLoanAsync(CreateLoanRequestDto body, CancellationToken cancellationToken = default)
+    => _api.PostAsync("api/loans/create", new
+    {
+        bookIds = body.BookIds,
+        dueDate = DateTime.Now.ToString("yyyy-MM-dd")
     }, cancellationToken);
 
     public Task<ApiResult> UpdateBookAsync( Guid id, UpdateBookRequestDto body, CancellationToken cancellationToken = default)
