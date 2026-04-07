@@ -99,6 +99,15 @@ namespace Library.Api.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Loan>> getAllLoansByUserIdAsync(Guid userId)
+        {
+            return await dbContext.Loans
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc!.Book)
+                .Where(x => x.userId == userId)
+                .ToListAsync();
+        }
+
         public async Task<Loan?> getByIdAsync(Guid id)
         {
             return await dbContext.Loans

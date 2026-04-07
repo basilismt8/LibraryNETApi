@@ -38,6 +38,21 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<List<LoanDto>>(loansDomain));
         }
 
+        [HttpGet("getAllLoansByUserIdAsync")]
+        [Authorize(Roles = "Librarian,Member")]
+        public async Task<IActionResult> getAllLoansByUserId()
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
+
+            var userId = Guid.Parse(userIdStr);
+
+            var loansDomain = await loanRepository.getAllLoansByUserIdAsync(userId);
+
+            //Map Domain Model to DTO and return it
+            return Ok(mapper.Map<List<LoanDto>>(loansDomain));
+        }
+
         [HttpGet("getById/{id}")]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> getById(Guid id)
