@@ -26,12 +26,23 @@
                 </NavLink>
             </div>
 
-            <AuthorizeView>
+            <AuthorizeView Roles="Librarian">
                 <Authorized>
                     <div class="nav-item">
                         <NavLink class="nav-pill" href="loans" Match="NavLinkMatch.Prefix">
                             <span class="pill-icon"><i class="bi bi-clipboard-check"></i></span>
-                            <span class="pill-text">Loans</span>
+                            <span class="pill-text">Library Loans</span>
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item">
+                        <NavLink class="nav-pill" href="myloans" Match="NavLinkMatch.Prefix">
+                            <span class="pill-icon"><i class="bi bi-clipboard-check"></i></span>
+                            <span class="pill-text">My Loans</span>
                         </NavLink>
                     </div>
                 </Authorized>

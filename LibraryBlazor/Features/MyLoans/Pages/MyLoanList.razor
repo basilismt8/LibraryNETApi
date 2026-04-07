@@ -1,0 +1,45 @@
+@page "/myloans"
+@using LibraryBlazor.Features.MyLoans.Models
+@using LibraryBlazor.Features.MyLoans.Components
+@using LibraryBlazor.Http
+@inject LibraryBlazor.Features.MyLoans.Services.MyLoansApi MyLoansApi
+
+<PageTitle>My Loans</PageTitle>
+
+<MyLoansTable Items="Loans"
+            FilterId="@FilterId"
+            FilterIdChanged="@(v => FilterId = v)"
+            FilterTitle="@FilterTitle"
+            FilterTitleChanged="@(v => FilterTitle = v)"
+            CurrentPage="@CurrentPage"
+            CurrentPageChanged="@(v => CurrentPage = v)"
+            PageSize="@PageSize"
+            PageSizeChanged="@(v => PageSize = v)"/>
+@code {
+    private List<MyLoanRowVm> Loans = new();
+
+    private string FilterId = "";
+    private string FilterTitle = "";
+    private int CurrentPage = 1;
+    private int PageSize = 10;
+    private int _numberOfSelectedLoans = 0;
+    private string? _modalError;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+
+    private async Task ReloadAsync()
+    {
+        var result = await MyLoansApi.GetMyLoansAsync();
+        if (!result.Success)
+        {
+            Loans = new();
+            _modalError = result.Message;
+            return;
+        }
+
+        Loans = (result.Data ?? Array.Empty<MyLoanDto>())
+            .Select(b => new MyLoanRowVm(b))
+            .ToList();
+    }
+}

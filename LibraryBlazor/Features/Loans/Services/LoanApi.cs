@@ -8,7 +8,7 @@ namespace LibraryBlazor.Features.Loans.Services
     {
         private readonly ApiClient _api;
 
-        public LoanApi(ApiClient api) 
+        public LoanApi(ApiClient api)
         {
             _api = api;
         }

@@ -3,6 +3,7 @@ using LibraryBlazor.Auth;
 using LibraryBlazor.Features.Auth.Services;
 using LibraryBlazor.Features.Books.Services;
 using LibraryBlazor.Features.Loans.Services;
+using LibraryBlazor.Features.MyLoans.Services;
 using LibraryBlazor.Http;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -22,5 +23,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredServ
 builder.Services.AddScoped<AuthApi>();
 builder.Services.AddScoped<BookApi>();
 builder.Services.AddScoped<LoanApi>();
+builder.Services.AddScoped<MyLoansApi>();
 
 await builder.Build().RunAsync();
