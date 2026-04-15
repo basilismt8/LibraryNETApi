@@ -66,6 +66,10 @@ public partial class Register
             await AuthStateProvider.SignInAsync(token, rememberMe: false).ConfigureAwait(false);
             Nav.NavigateTo("/books", replace: true);
         }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
         finally
         {
             _saving = false;

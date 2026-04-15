@@ -19,8 +19,8 @@ public sealed class AuthApi
             password = body.Password
         }, cancellationToken);
 
-    public Task<ApiResult<string>> RegisterAsync(RegisterRequestDto body, CancellationToken cancellationToken = default)
-        => _api.PostResultAsync<string, object>("api/auth/register", new
+    public Task<ApiResult> RegisterAsync(RegisterRequestDto body, CancellationToken cancellationToken = default)
+        => _api.PostAsync<object>("api/auth/register", new
         {
             username = body.Username,
             password = body.Password,

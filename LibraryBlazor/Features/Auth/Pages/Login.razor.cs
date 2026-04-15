@@ -68,6 +68,10 @@ public partial class Login
             await AuthStateProvider.SignInAsync(token, Model.RememberMe);
             Nav.NavigateTo("/books", forceLoad: false);
         }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
         finally
         {
             _saving = false;
