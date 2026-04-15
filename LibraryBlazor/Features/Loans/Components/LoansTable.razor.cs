@@ -45,6 +45,14 @@ public partial class LoansTable
         }
     }
 
+    private static string FormatStatus(LoanStatus status) => status switch
+    {
+        LoanStatus.borrowed => "Borrowed",
+        LoanStatus.returned => "Returned",
+        LoanStatus.overdue  => "Overdue",
+        _                   => status.ToString()
+    };
+
     private static string GetUrgencyClass(LoanRowVm loan)
     {
         if (loan.Status == LoanStatus.returned)
