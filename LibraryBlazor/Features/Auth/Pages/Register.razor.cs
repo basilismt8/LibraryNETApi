@@ -63,7 +63,7 @@ public partial class Register
                 return;
             }
 
-            await AuthStateProvider.SignInAsync(token).ConfigureAwait(false);
+            await AuthStateProvider.SignInAsync(token, rememberMe: false).ConfigureAwait(false);
             Nav.NavigateTo("/books", replace: true);
         }
         finally

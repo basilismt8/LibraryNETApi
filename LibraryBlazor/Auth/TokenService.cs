@@ -6,6 +6,7 @@ namespace LibraryBlazor.Auth;
 public sealed class TokenService
 {
     private const string TokenKey = "auth.token";
+    private const string EmailKey = "auth.email";
 
     private readonly IJSRuntime _js;
 
@@ -14,11 +15,25 @@ public sealed class TokenService
         _js = js;
     }
 
-    public ValueTask SetTokenAsync(string token)
-        => _js.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+    public ValueTask SetTokenAsync(string token, bool persist)
+    {
+        var storage = persist ? "localStorage" : "sessionStorage";
+        return _js.InvokeVoidAsync($"{storage}.setItem", TokenKey, token);
+    }
 
-    public ValueTask<string?> GetTokenAsync()
-        => _js.InvokeAsync<string?>("localStorage.getItem", TokenKey);
+    public ValueTask SetRememberedEmailAsync(string email)
+        => _js.InvokeVoidAsync("localStorage.setItem", EmailKey, email);
+
+    public ValueTask<string?> GetRememberedEmailAsync()
+        => _js.InvokeAsync<string?>("localStorage.getItem", EmailKey);
+
+    public async ValueTask<string?> GetTokenAsync()
+    {
+        var token = await _js.InvokeAsync<string?>("localStorage.getItem", TokenKey).ConfigureAwait(false);
+        if (!string.IsNullOrWhiteSpace(token)) return token;
+
+        return await _js.InvokeAsync<string?>("sessionStorage.getItem", TokenKey).ConfigureAwait(false);
+    }
 
     public async ValueTask<string?> GetValidTokenAsync()
     {
@@ -95,6 +110,12 @@ public sealed class TokenService
         return Convert.FromBase64String(input);
     }
 
-    public ValueTask ClearTokenAsync()
-        => _js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
+    public async ValueTask ClearTokenAsync()
+    {
+        await _js.InvokeVoidAsync("localStorage.removeItem", TokenKey).ConfigureAwait(false);
+        await _js.InvokeVoidAsync("sessionStorage.removeItem", TokenKey).ConfigureAwait(false);
+    }
+
+    public ValueTask ClearRememberedEmailAsync()
+        => _js.InvokeVoidAsync("localStorage.removeItem", EmailKey);
 }

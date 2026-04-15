@@ -10,10 +10,28 @@ public partial class Login
     [Inject] public AuthApi AuthApi { get; set; } = default!;
     [Inject] public JwtAuthStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] public NavigationManager Nav { get; set; } = default!;
+    [Inject] public TokenService TokenService { get; set; } = default!;
 
     protected LoginVm Model { get; } = new();
     protected bool _saving;
     protected string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            Nav.NavigateTo("/books", replace: true);
+            return;
+        }
+
+        var rememberedEmail = await TokenService.GetRememberedEmailAsync();
+        if (!string.IsNullOrWhiteSpace(rememberedEmail))
+        {
+            Model.Email = rememberedEmail;
+            Model.RememberMe = true;
+        }
+    }
 
     protected async Task SignInAsync()
     {
@@ -42,7 +60,12 @@ public partial class Login
                 return;
             }
 
-            await AuthStateProvider.SignInAsync(token);
+            if (Model.RememberMe)
+                await TokenService.SetRememberedEmailAsync(Model.Email.Trim());
+            else
+                await TokenService.ClearRememberedEmailAsync();
+
+            await AuthStateProvider.SignInAsync(token, Model.RememberMe);
             Nav.NavigateTo("/books", forceLoad: false);
         }
         finally

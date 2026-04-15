@@ -24,7 +24,7 @@
 
         public static ApiResult<T> Ok(T? data) => new() { Success = true, Data = data };
 
-        public static ApiResult<T> Fail(string? message = null,
+        public static new ApiResult<T> Fail(string? message = null,
             Dictionary<string, string[]>? errors = null)
             => new()
             {

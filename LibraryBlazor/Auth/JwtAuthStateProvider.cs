@@ -15,14 +15,14 @@ public sealed class JwtAuthStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _tokenService.GetTokenAsync().ConfigureAwait(false);
+        var token = await _tokenService.GetValidTokenAsync().ConfigureAwait(false);
         var principal = BuildPrincipalFromToken(token);
         return new AuthenticationState(principal);
     }
 
-    public async Task SignInAsync(string accessToken)
+    public async Task SignInAsync(string accessToken, bool rememberMe)
     {
-        await _tokenService.SetTokenAsync(accessToken).ConfigureAwait(false);
+        await _tokenService.SetTokenAsync(accessToken, rememberMe).ConfigureAwait(false);
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
