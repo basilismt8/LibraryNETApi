@@ -45,7 +45,22 @@ public partial class LoansTable
         }
     }
 
-    private string GetRowClass(LoanRowVm loan) => loan.IsSelected ? "table-active" : "";
+    private static string GetUrgencyClass(LoanRowVm loan)
+    {
+        if (loan.Status == LoanStatus.returned)
+            return "";
+
+        var daysLeft = loan.DueDate.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
+        return daysLeft <= 2 ? "table-danger"
+             : daysLeft <= 7 ? "table-warning"
+             : "";
+    }
+
+    private string GetRowClass(LoanRowVm loan)
+    {
+        var urgency = GetUrgencyClass(loan);
+        return loan.IsSelected ? $"table-active {urgency}".Trim() : urgency;
+    }
 
     private async Task OnFilterIdInput(ChangeEventArgs e)
     {
