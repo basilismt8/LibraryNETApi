@@ -24,7 +24,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> register([FromBody] RegisterRequestDto registerRequestDto)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
             var ideintityUser = new IdentityUser 
             { 
@@ -47,7 +47,7 @@ namespace Library.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> login([FromBody] LoginRequestDto loginRequestDto)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
         {
             var user = await userManager.FindByEmailAsync(loginRequestDto.Username);
             if (user != null)

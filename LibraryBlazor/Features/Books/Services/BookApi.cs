@@ -14,13 +14,13 @@ public sealed class BookApi
     }
 
     public Task<ApiResult<IReadOnlyList<BookDto>>> GetBooksAsync(CancellationToken cancellationToken = default)
-        => _api.GetResultAsync<IReadOnlyList<BookDto>>("api/books/getAll", cancellationToken);
+        => _api.GetResultAsync<IReadOnlyList<BookDto>>("api/books", cancellationToken);
 
     public Task<ApiResult<BookDto>> GetBookByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => _api.GetResultAsync<BookDto>($"api/books/getById/{id}", cancellationToken);
+        => _api.GetResultAsync<BookDto>($"api/books/{id}", cancellationToken);
 
     public Task<ApiResult> CreateBookAsync(CreateBookRequestDto body, CancellationToken cancellationToken = default)
-    => _api.PostAsync("api/books/create", new
+    => _api.PostAsync("api/books", new
     {
         title = body.Title,
         copiesAvailable = body.CopiesAvailable,
@@ -28,14 +28,14 @@ public sealed class BookApi
     }, cancellationToken);
 
     public Task<ApiResult> CreateLoanAsync(CreateLoanRequestDto body, CancellationToken cancellationToken = default)
-    => _api.PostAsync("api/loans/create", new
+    => _api.PostAsync("api/loans", new
     {
         bookIds = body.BookIds,
         dueDate = DateTime.Now.ToString("yyyy-MM-dd")
     }, cancellationToken);
 
     public Task<ApiResult> UpdateBookAsync( Guid id, UpdateBookRequestDto body, CancellationToken cancellationToken = default)
-    => _api.PutAsync($"api/books/update/{id}", new
+    => _api.PutAsync($"api/books/{id}", new
     {
         title = body.Title,
         copiesAvailable = body.CopiesAvailable,
@@ -43,6 +43,6 @@ public sealed class BookApi
     }, cancellationToken);
 
     public Task<ApiResult> DeleteBookAsync(Guid id, CancellationToken cancellationToken = default)
-        => _api.DeleteResultAsync($"api/books/delete/{id}", cancellationToken);
+        => _api.DeleteResultAsync($"api/books/{id}", cancellationToken);
 
 }

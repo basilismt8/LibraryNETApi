@@ -24,9 +24,9 @@ namespace Library.Api.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> getAll()
+        public async Task<IActionResult> GetAll()
         {
             var finesDomain = await fineRepository.getAllAsync();
 
@@ -34,9 +34,9 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<List<FineDto>>(finesDomain));
         }
 
-        [HttpGet("getById/{id:Guid}")]
+        [HttpGet("{id:Guid}")]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> getById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var fineDomain = await fineRepository.getByIdAsync(id);
 

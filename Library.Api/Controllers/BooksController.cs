@@ -32,9 +32,9 @@ namespace Library.Api.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         //[Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> getAll() {
+        public async Task<IActionResult> GetAll() {
             logger.LogInformation("Get all books called");
             var booksDomain = await bookRepository.getAllAsync();
             logger.LogInformation($"all books are {JsonSerializer.Serialize(booksDomain)}");
@@ -42,9 +42,9 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<List<BookDto>>(booksDomain));
         }
 
-        [HttpGet("getById/{id}")]
+        [HttpGet("{id}")]
         //[Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> getById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var bookDomain = await bookRepository.getByIdAsync(id);
 
@@ -56,22 +56,22 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         [validateModel]
         //[Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> createBook([FromBody] CreateBookRequestDto createBookRequestDto)
+        public async Task<IActionResult> Create([FromBody] CreateBookRequestDto createBookRequestDto)
         {
             var bookDomain = mapper.Map<Book>(createBookRequestDto);
 
             bookDomain = await bookRepository.CreateAsync(bookDomain);
 
-            return CreatedAtAction(nameof(getById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
+            return CreatedAtAction(nameof(GetById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         [validateModel]
         //[Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> updateBook([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
         {
             var bookDomain = mapper.Map<Book>(updateBookRequestDto);
 
@@ -85,9 +85,9 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<BookDto>(bookDomain));
         }
 
-        [HttpDelete("delete/{id:Guid}")]
+        [HttpDelete("{id:Guid}")]
         //[Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> deleteBook([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var bookDomain = await bookRepository.DeleteAsync(id);
             if (bookDomain == null)

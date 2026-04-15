@@ -13,6 +13,6 @@ namespace LibraryBlazor.Features.MyLoans.Services
         }
 
         public Task<ApiResult<IReadOnlyList<MyLoanDto>>> GetMyLoansAsync(CancellationToken cancellationToken = default)
-        => _api.GetResultAsync<IReadOnlyList<MyLoanDto>>("api/loans/getAllLoansByUserIdAsync", cancellationToken);
+        => _api.GetResultAsync<IReadOnlyList<MyLoanDto>>("api/loans/user/current", cancellationToken);
     }
 }

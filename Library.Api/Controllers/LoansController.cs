@@ -28,9 +28,9 @@ namespace Library.Api.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> getAll()
+        public async Task<IActionResult> GetAll()
         {
             var loansDomain = await loanRepository.getAllAsync();
 
@@ -38,9 +38,9 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<List<LoanDto>>(loansDomain));
         }
 
-        [HttpGet("getAllLoansByUserIdAsync")]
+        [HttpGet("user/current")]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> getAllLoansByUserId()
+        public async Task<IActionResult> GetCurrentUserLoans()
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
@@ -53,9 +53,9 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<List<LoanDto>>(loansDomain));
         }
 
-        [HttpGet("getById/{id}")]
+        [HttpGet("{id}")]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> getById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var loanDomain = await loanRepository.getByIdAsync(id);
 
@@ -68,10 +68,10 @@ namespace Library.Api.Controllers
             return Ok(mapper.Map<LoanDto>(loanDomain));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         [validateModel]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> CreateLoan([FromBody] CreateLoanRequestDto createLoanRequestDto)
+        public async Task<IActionResult> Create([FromBody] CreateLoanRequestDto createLoanRequestDto)
         {
             var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
@@ -92,10 +92,10 @@ namespace Library.Api.Controllers
         }
 
 
-        [HttpPut("extendLoanPeriod/{id:Guid}")]
+        [HttpPut("{id:Guid}/extend")]
         [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> extendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto)
+        public async Task<IActionResult> ExtendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto)
         {
             var extendLoanPeriodDomain = mapper.Map<Loan>(extendLoanRequestDto);
 
