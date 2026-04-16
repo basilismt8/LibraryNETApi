@@ -1,0 +1,9 @@
+@using System.Timers
+
+<span class="guid-display" @onmouseenter="ShowTooltip" @onmouseleave="HideTooltip">
+    <span class="guid-short">@ShortLabel</span>
+    @if (_visible)
+    {
+        <span class="guid-tooltip" role="tooltip">@Value</span>
+    }
+</span>

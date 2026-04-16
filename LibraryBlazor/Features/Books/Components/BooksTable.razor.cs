@@ -37,7 +37,6 @@ public partial class BooksTable
 
     private bool CanEdit => Items.Count(b => b.IsSelected) == 1;
     private bool CanDelete => Items.Any(b => b.IsSelected);
-    private bool CanLoan => Items.Any(b => b.IsSelected);
 
 
     private bool SelectAllRows
@@ -50,7 +49,9 @@ public partial class BooksTable
         }
     }
 
-    private string GetRowClass(BookRowVm book) => book.IsSelected ? "table-active" : "";
+    private string GetRowClass(BookRowVm book) => book.IsSelected ? "row-selected" : "";
+
+    private void ToggleSelection(BookRowVm book) => book.IsSelected = !book.IsSelected;
 
     private async Task OnFilterIdInput(ChangeEventArgs e)
     {
@@ -64,6 +65,12 @@ public partial class BooksTable
         await CurrentPageChanged.InvokeAsync(1);
     }
 
+    private async Task FirstPage()
+    {
+        if (CurrentPage > 1)
+            await CurrentPageChanged.InvokeAsync(1);
+    }
+
     private async Task PrevPage()
     {
         if (CurrentPage > 1)
@@ -74,6 +81,12 @@ public partial class BooksTable
     {
         if (CurrentPage < TotalPages)
             await CurrentPageChanged.InvokeAsync(CurrentPage + 1);
+    }
+
+    private async Task LastPage()
+    {
+        if (CurrentPage < TotalPages)
+            await CurrentPageChanged.InvokeAsync(TotalPages);
     }
 
     private async Task OnPageSizeChanged(ChangeEventArgs e)

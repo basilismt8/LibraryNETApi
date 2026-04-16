@@ -47,6 +47,14 @@ public partial class MyLoansTable
         _                     => status.ToString()
     };
 
+    private static string GetStatusBadgeClass(MyLoanStatus status) => status switch
+    {
+        MyLoanStatus.borrowed => "badge-borrowed",
+        MyLoanStatus.returned => "badge-returned",
+        MyLoanStatus.overdue  => "badge-overdue",
+        _                     => ""
+    };
+
     private static string GetUrgencyClass(MyLoanRowVm loan)
     {
         if (loan.Status == MyLoanStatus.returned)
@@ -61,8 +69,11 @@ public partial class MyLoansTable
     private string GetRowClass(MyLoanRowVm loan)
     {
         var urgency = GetUrgencyClass(loan);
-        return loan.IsSelected ? $"table-active {urgency}".Trim() : urgency;
+        var selected = loan.IsSelected ? "row-selected" : "";
+        return $"{selected} {urgency}".Trim();
     }
+
+    private void ToggleSelection(MyLoanRowVm loan) => loan.IsSelected = !loan.IsSelected;
 
     private async Task OnFilterIdInput(ChangeEventArgs e)
     {
@@ -76,6 +87,12 @@ public partial class MyLoansTable
         await CurrentPageChanged.InvokeAsync(1);
     }
 
+    private async Task FirstPage()
+    {
+        if (CurrentPage > 1)
+            await CurrentPageChanged.InvokeAsync(1);
+    }
+
     private async Task PrevPage()
     {
         if (CurrentPage > 1)
@@ -86,6 +103,12 @@ public partial class MyLoansTable
     {
         if (CurrentPage < TotalPages)
             await CurrentPageChanged.InvokeAsync(CurrentPage + 1);
+    }
+
+    private async Task LastPage()
+    {
+        if (CurrentPage < TotalPages)
+            await CurrentPageChanged.InvokeAsync(TotalPages);
     }
 
     private async Task OnPageSizeChanged(ChangeEventArgs e)

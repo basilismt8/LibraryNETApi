@@ -1,7 +1,8 @@
 ﻿@using LibraryBlazor.Features.Books.Models
+@using LibraryBlazor.Components
 
 <div class="table-card">
-    <div class="d-flex justify-content-between align-items-center p-2 border-bottom bg-white">
+    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
         <AuthorizeView Roles="Librarian">
             <div class="btn-toolbar gap-2">
                 <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnEdit" disabled="@(!CanEdit)">
@@ -12,9 +13,7 @@
                 </button>
             </div>
             <div class="btn-toolbar gap-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnLoan" disabled="@(!CanLoan)">
-                    <i class="bi bi-plus"></i> Loan Book(s)
-                </button>
+
                 <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="OnNew">
                     <i class="bi bi-plus"></i> New Book
                 </button>
@@ -27,14 +26,12 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th><input type="checkbox" @bind="SelectAllRows" /></th>
                     <th>Id</th>
                     <th>Title</th>
                     <th>Copies Available</th>
                     <th>Total Copies</th>
                 </tr>
                 <tr class="filters">
-                    <th></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Id" value="@FilterId" @oninput="OnFilterIdInput" /></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Title" value="@FilterTitle" @oninput="OnFilterTitleInput" /></th>
                     <th></th>
@@ -44,9 +41,8 @@
             <tbody>
                 @foreach (var book in PagedItems)
                 {
-                    <tr class="@GetRowClass(book)">
-                        <td><input type="checkbox" @bind="book.IsSelected" /></td>
-                        <td>@book.Id</td>
+                    <tr class="@GetRowClass(book)" @onclick="() => ToggleSelection(book)">
+                        <td><GuidDisplay Value="@book.Id" /></td>
                         <td>@book.Title</td>
                         <td>@book.CopiesAvailable</td>
                         <td>@book.TotalCopies</td>
@@ -56,23 +52,25 @@
         </table>
     </div>
 
-    <div class="border-top d-flex flex-wrap gap-2 align-items-center justify-content-between p-2">
-        <div class="text-muted small">@($"{FilteredItems.Count()} of {Items.Count} items")</div>
-
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            <label class="text-muted small mb-0">Items per page</label>
-            <select class="form-select form-select-sm" style="width: 80px" @onchange="OnPageSizeChanged">
+    <div class="table-footer">
+        <div class="d-flex align-items-center gap-2">
+            <label class="text-muted small mb-0">Rows per page</label>
+            <select class="form-select form-select-sm" style="width: 72px" @onchange="OnPageSizeChanged">
                 @foreach (var size in new[] { 5, 10, 20, 50 })
                 {
                     <option value="@size" selected="@(size == PageSize)">@size</option>
                 }
             </select>
+        </div>
 
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="PrevPage" disabled="@(CurrentPage <= 1)">‹</button>
-                <span class="small fw-semibold">@CurrentPage / @TotalPages</span>
-                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="NextPage" disabled="@(CurrentPage >= TotalPages)">›</button>
-            </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="FirstPage" disabled="@(CurrentPage <= 1)">«</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="PrevPage" disabled="@(CurrentPage <= 1)">‹</button>
+            <span class="page-current">@CurrentPage</span>
+            <span class="page-separator">/ @TotalPages</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="NextPage" disabled="@(CurrentPage >= TotalPages)">›</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="LastPage" disabled="@(CurrentPage >= TotalPages)">»</button>
+            <span class="total-records">Total Records: @FilteredItems.Count()</span>
         </div>
     </div>
 </div>
