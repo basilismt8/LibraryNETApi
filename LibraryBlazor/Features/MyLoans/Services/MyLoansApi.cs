@@ -14,5 +14,11 @@ namespace LibraryBlazor.Features.MyLoans.Services
 
         public Task<ApiResult<IReadOnlyList<MyLoanDto>>> GetMyLoansAsync(CancellationToken cancellationToken = default)
         => _api.GetResultAsync<IReadOnlyList<MyLoanDto>>("api/loans/user/current", cancellationToken);
+
+        public Task<ApiResult> ExtendLoanAsync(Guid loanId, ExtendLoanRequestDto body, CancellationToken cancellationToken = default)
+            => _api.PutAsync($"api/loans/{loanId}/extend", new
+            {
+                dueDate = body.DueDate
+            }, cancellationToken);
     }
 }

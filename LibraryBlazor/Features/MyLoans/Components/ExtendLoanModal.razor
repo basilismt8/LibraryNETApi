@@ -1,0 +1,46 @@
+﻿@using LibraryBlazor.Features.MyLoans.Models
+
+@if (IsOpen)
+{
+    <div class="book-modal-overlay show" role="dialog" aria-modal="true" @onclick="HandleCancelAsync">
+        <div class="book-modal" @onclick:stopPropagation>
+            <div class="book-modal-header">
+                <h3 class="book-modal-title">Extend Loan</h3>
+                <button type="button" class="book-modal-close" aria-label="Close" @onclick="HandleCancelAsync" disabled="@Saving">×</button>
+            </div>
+
+            <div class="book-modal-body">
+                @if (!string.IsNullOrWhiteSpace(Error))
+                {
+                    <div class="alert alert-danger" role="alert">@Error</div>
+                }
+
+                @if (Loan is not null)
+                {
+                    <div class="book-form-row">
+                        <div class="book-form-group full">
+                            <label>Current Due Date</label>
+                            <input value="@Loan.DueDate.ToString("yyyy-MM-dd")" disabled />
+                        </div>
+
+                        <div class="book-form-group full">
+                            <label>New Due Date <span class="required-star" aria-hidden="true">*</span></label>
+                            <input type="date"
+                                   value="@NewDueDate.ToString("yyyy-MM-dd")"
+                                   min="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")"
+                                   @onchange="HandleNewDueDateChangedAsync"
+                                   disabled="@Saving" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="book-modal-footer">
+                <button type="button" class="bm-btn bm-btn-secondary" @onclick="HandleCancelAsync" disabled="@Saving">Cancel</button>
+                <button type="button" class="bm-btn bm-btn-primary" @onclick="HandleConfirmAsync" disabled="@Saving">
+                    @(Saving ? "Saving..." : "Save")
+                </button>
+            </div>
+        </div>
+    </div>
+}

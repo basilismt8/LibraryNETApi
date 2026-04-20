@@ -1,5 +1,16 @@
 ﻿
 
+/* ─── Column widths ─── */
+.table-card .col-status {
+    width: 110px;
+}
+
+.table-card .col-action {
+    width: 100px;
+    text-align: center;
+    white-space: nowrap;
+}
+
 /* ─── Card container ─── */
 .table-card {
     background: #2c1d16;

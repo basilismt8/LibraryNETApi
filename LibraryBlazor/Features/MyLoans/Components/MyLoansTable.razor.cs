@@ -19,7 +19,7 @@ public partial class MyLoansTable
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
 
-    [Parameter] public EventCallback OnExtendLoan { get; set; }
+    [Parameter] public EventCallback<MyLoanRowVm> OnExtendLoan { get; set; }
 
     private IEnumerable<MyLoanRowVm> FilteredItems =>
        Items.Where(l =>
