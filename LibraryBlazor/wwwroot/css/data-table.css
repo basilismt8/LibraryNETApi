@@ -379,6 +379,40 @@
     cursor: default;
 }
 
+/* ─── Extend loan action button ─── */
+.table-card .action-cell {
+    width: 56px;
+    text-align: left;
+    padding: 8px 14px !important;
+}
+
+.btn-extend-loan {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(176, 122, 74, 0.4);
+    background: rgba(176, 122, 74, 0.15);
+    color: #e8955a;
+    font-size: 16px;
+    padding: 0;
+    transition: all 160ms ease;
+    cursor: pointer;
+}
+
+.btn-extend-loan:hover {
+    background: rgba(176, 122, 74, 0.18);
+    border-color: #b07a4a;
+    color: #faf6f1;
+}
+
+.btn-extend-loan:focus-visible {
+    outline: 2px solid rgba(176, 122, 74, 0.5);
+    outline-offset: 2px;
+}
+
 /* ─── Empty state ─── */
 .loan-empty-state {
     text-align: center;

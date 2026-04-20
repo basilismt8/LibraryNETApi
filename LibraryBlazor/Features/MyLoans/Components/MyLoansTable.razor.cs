@@ -19,6 +19,8 @@ public partial class MyLoansTable
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
 
+    [Parameter] public EventCallback OnExtendLoan { get; set; }
+
     private IEnumerable<MyLoanRowVm> FilteredItems =>
        Items.Where(l =>
            (string.IsNullOrWhiteSpace(FilterId) || l.Id.ToString().Contains(FilterId, StringComparison.OrdinalIgnoreCase)) &&
