@@ -27,7 +27,6 @@
 .table-card > .d-flex:first-child {
     padding: 14px 20px 10px;
     background: #2c1d16;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 16px 16px 0 0;
 }
 
@@ -166,6 +165,7 @@
 
 .table-card tbody tr td {
     border-top: 0;
+    border-bottom: 0;
     padding: 14px;
     color: #ddd0c3;
     vertical-align: middle;
@@ -209,12 +209,6 @@
 }
 
 /* ─── Footer / pagination ─── */
-.table-card .table-footer,
-.table-card .border-top {
-    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-    background: #2c1d16;
-}
-
 .table-card .table-footer {
     display: flex;
     flex-wrap: wrap;
