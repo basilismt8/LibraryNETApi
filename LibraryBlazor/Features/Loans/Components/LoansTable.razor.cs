@@ -20,6 +20,8 @@ public partial class LoansTable
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
 
+    [Parameter] public EventCallback<LoanRowVm> OnExtendLoan { get; set; }
+
     //[Parameter] public EventCallback OnNew { get; set; }
     //[Parameter] public EventCallback OnEdit { get; set; }
     //[Parameter] public EventCallback OnDelete { get; set; }

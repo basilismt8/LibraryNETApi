@@ -1,4 +1,4 @@
-﻿namespace LibraryBlazor.Features.MyLoans.Models;
+namespace LibraryBlazor.Shared.Models;
 
 public sealed class ExtendLoanModel
 {

@@ -1,5 +1,6 @@
 using LibraryBlazor.Features.MyLoans.Models;
 using LibraryBlazor.Http;
+using LibraryBlazor.Shared.Models;
 
 namespace LibraryBlazor.Features.MyLoans.Services
 {

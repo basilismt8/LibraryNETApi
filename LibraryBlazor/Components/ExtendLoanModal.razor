@@ -1,5 +1,3 @@
-﻿@using LibraryBlazor.Features.MyLoans.Models
-
 @if (IsOpen)
 {
     <div class="book-modal-overlay show" role="dialog" aria-modal="true" @onclick="HandleCancelAsync">
@@ -15,12 +13,12 @@
                     <div class="alert alert-danger" role="alert">@Error</div>
                 }
 
-                @if (Loan is not null)
+                @if (CurrentDueDate is not null)
                 {
                     <div class="book-form-row">
                         <div class="book-form-group full">
                             <label>Current Due Date</label>
-                            <input value="@Loan.DueDate.ToString("yyyy-MM-dd")" disabled />
+                            <input value="@CurrentDueDate?.ToString("yyyy-MM-dd")" disabled />
                         </div>
 
                         <div class="book-form-group full">
@@ -38,7 +36,7 @@
             <div class="book-modal-footer">
                 <button type="button" class="bm-btn bm-btn-secondary" @onclick="HandleCancelAsync" disabled="@Saving">Cancel</button>
                 <button type="button" class="bm-btn bm-btn-primary" @onclick="HandleConfirmAsync" disabled="@Saving">
-                    @(Saving ? "Saving..." : "Save")
+                    @(Saving ? "Saving..." : "Confirm")
                 </button>
             </div>
         </div>

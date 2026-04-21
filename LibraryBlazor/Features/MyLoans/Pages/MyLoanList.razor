@@ -1,7 +1,7 @@
 @page "/myloans"
-@using LibraryBlazor.Features.Loans.Services
 @using LibraryBlazor.Features.MyLoans.Models
 @using LibraryBlazor.Features.MyLoans.Components
+@using LibraryBlazor.Shared.Models
 @using LibraryBlazor.Http
 @inject LibraryBlazor.Features.MyLoans.Services.MyLoansApi MyLoansApi
 
@@ -22,7 +22,7 @@
                   IsOpenChanged="@(v => _showModal = v)"
                   Saving="@_saving"
                   Error="@_modalError"
-                  Loan="@_selectedLoan"
+                  CurrentDueDate="@_selectedLoan?.DueDate"
                   NewDueDate="@_newDueDate"
                   NewDueDateChanged="@((DateOnly v) => _newDueDate = v)"
                   OnCancel="CloseModal"

@@ -1,6 +1,7 @@
 ﻿@page "/loans"
 @using LibraryBlazor.Features.Loans.Models
 @using LibraryBlazor.Features.Loans.Components
+@using LibraryBlazor.Shared.Models
 @using LibraryBlazor.Http
 @inject LibraryBlazor.Features.Loans.Services.LoanApi LoanApi
 
@@ -14,19 +15,32 @@
             CurrentPage="@CurrentPage"
             CurrentPageChanged="@(v => CurrentPage = v)"
             PageSize="@PageSize"
-            PageSizeChanged="@(v => PageSize = v)"/>
+            PageSizeChanged="@(v => PageSize = v)"
+            OnExtendLoan="OpenExtendLoan" />
+
+<ExtendLoanModal IsOpen="@_showModal"
+                  IsOpenChanged="@(v => _showModal = v)"
+                  Saving="@_saving"
+                  Error="@_modalError"
+                  CurrentDueDate="@_selectedLoan?.DueDate"
+                  NewDueDate="@_newDueDate"
+                  NewDueDateChanged="@((DateOnly v) => _newDueDate = v)"
+                  OnCancel="CloseModal"
+                  OnConfirm="SaveAsync" />
+
 @code {
     private List<LoanRowVm> Loans = new();
-
+    private bool _showModal;
+    private bool _saving;
     private string FilterId = "";
     private string FilterTitle = "";
     private int CurrentPage = 1;
     private int PageSize = 10;
-    private int _numberOfSelectedLoans = 0;
+    private LoanRowVm? _selectedLoan;
+    private DateOnly _newDueDate;
     private string? _modalError;
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
-
 
     private async Task ReloadAsync()
     {
@@ -41,5 +55,49 @@
         Loans = (result.Data ?? Array.Empty<LoanDto>())
             .Select(b => new LoanRowVm(b))
             .ToList();
+    }
+
+    private Task OpenExtendLoan(LoanRowVm loan)
+    {
+        _selectedLoan = loan;
+        _newDueDate = loan.DueDate;
+        _modalError = null;
+        _showModal = true;
+        return Task.CompletedTask;
+    }
+
+    private void CloseModal()
+    {
+        if (_saving) return;
+        _showModal = false;
+        _modalError = null;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_selectedLoan is null) return;
+
+        _saving = true;
+        _modalError = null;
+
+        try
+        {
+            var result = await LoanApi.ExtendLoanAsync(_selectedLoan.Id,
+                new ExtendLoanRequestDto(_newDueDate));
+
+            if (!result.Success)
+            {
+                _modalError = result.Message ?? "Unknown error";
+                return;
+            }
+
+            _showModal = false;
+            await ReloadAsync();
+        }
+        finally
+        {
+            _saving = false;
+            StateHasChanged();
+        }
     }
 }

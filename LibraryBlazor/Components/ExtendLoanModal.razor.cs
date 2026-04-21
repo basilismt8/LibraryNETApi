@@ -1,7 +1,6 @@
-using LibraryBlazor.Features.MyLoans.Models;
 using Microsoft.AspNetCore.Components;
 
-namespace LibraryBlazor.Features.MyLoans.Components;
+namespace LibraryBlazor.Components;
 
 public partial class ExtendLoanModal
 {
@@ -11,7 +10,7 @@ public partial class ExtendLoanModal
     [Parameter] public bool Saving { get; set; }
     [Parameter] public string? Error { get; set; }
 
-    [Parameter] public MyLoanRowVm? Loan { get; set; }
+    [Parameter] public DateOnly? CurrentDueDate { get; set; }
 
     [Parameter] public DateOnly NewDueDate { get; set; }
     [Parameter] public EventCallback<DateOnly> NewDueDateChanged { get; set; }
