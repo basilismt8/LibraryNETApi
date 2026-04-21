@@ -13,6 +13,7 @@ namespace LibraryBlazor.Features.Loans.Models
             LoanDate = dto.loanDate;
             DueDate = dto.dueDate;
             Status = dto.status;
+            BookTitle = dto.bookTitle;
         }
 
 
@@ -23,6 +24,7 @@ namespace LibraryBlazor.Features.Loans.Models
         public DateOnly LoanDate { get; set; }
         public DateOnly DueDate { get; set; }
         public LoanStatus Status { get; set; }
+        public string BookTitle { get; set; } = string.Empty;
         public bool IsSelected { get; set; }
 
     }

@@ -6,6 +6,7 @@
          Guid userId,
          DateOnly loanDate,
          DateOnly dueDate,
-         LoanStatus status
+         LoanStatus status,
+         string bookTitle
      );
 }

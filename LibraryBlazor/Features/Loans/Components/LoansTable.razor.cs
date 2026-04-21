@@ -14,6 +14,9 @@ public partial class LoansTable
     [Parameter] public string FilterTitle { get; set; } = "";
     [Parameter] public EventCallback<string> FilterTitleChanged { get; set; }
 
+    [Parameter] public string FilterBookCopyId { get; set; } = "";
+    [Parameter] public EventCallback<string> FilterBookCopyIdChanged { get; set; }
+
     [Parameter] public int CurrentPage { get; set; } = 1;
     [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
 
@@ -30,7 +33,8 @@ public partial class LoansTable
     private IEnumerable<LoanRowVm> FilteredItems =>
        Items.Where(l =>
            (string.IsNullOrWhiteSpace(FilterId) || l.Id.ToString().Contains(FilterId, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(FilterTitle) || l.BookCopyId.ToString().Contains(FilterTitle, StringComparison.OrdinalIgnoreCase)));
+           (string.IsNullOrWhiteSpace(FilterBookCopyId) || l.BookCopyId.ToString().Contains(FilterBookCopyId, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(FilterTitle) || l.BookTitle.Contains(FilterTitle, StringComparison.OrdinalIgnoreCase)));
 
     private IEnumerable<LoanRowVm> PagedItems =>
         FilteredItems.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
@@ -92,6 +96,12 @@ public partial class LoansTable
     private async Task OnFilterTitleInput(ChangeEventArgs e)
     {
         await FilterTitleChanged.InvokeAsync(e.Value?.ToString() ?? "");
+        await CurrentPageChanged.InvokeAsync(1);
+    }
+
+    private async Task OnFilterBookCopyIdInput(ChangeEventArgs e)
+    {
+        await FilterBookCopyIdChanged.InvokeAsync(e.Value?.ToString() ?? "");
         await CurrentPageChanged.InvokeAsync(1);
     }
 

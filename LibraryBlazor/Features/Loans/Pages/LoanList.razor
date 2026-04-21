@@ -10,6 +10,8 @@
 <LoansTable Items="Loans"
             FilterId="@FilterId"
             FilterIdChanged="@(v => FilterId = v)"
+            FilterBookCopyId="@FilterBookCopyId"
+            FilterBookCopyIdChanged="@(v => FilterBookCopyId = v)"
             FilterTitle="@FilterTitle"
             FilterTitleChanged="@(v => FilterTitle = v)"
             CurrentPage="@CurrentPage"
@@ -33,6 +35,7 @@
     private bool _showModal;
     private bool _saving;
     private string FilterId = "";
+    private string FilterBookCopyId = "";
     private string FilterTitle = "";
     private int CurrentPage = 1;
     private int PageSize = 10;

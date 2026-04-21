@@ -6,6 +6,7 @@ namespace LibraryBlazor.Features.MyLoans.Models
          Guid userId,
          DateOnly loanDate,
          DateOnly dueDate,
-         MyLoanStatus status
+         MyLoanStatus status,
+         string bookTitle
      );
 }

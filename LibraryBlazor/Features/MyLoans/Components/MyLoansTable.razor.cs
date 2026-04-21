@@ -24,7 +24,7 @@ public partial class MyLoansTable
     private IEnumerable<MyLoanRowVm> FilteredItems =>
        Items.Where(l =>
            (string.IsNullOrWhiteSpace(FilterId) || l.Id.ToString().Contains(FilterId, StringComparison.OrdinalIgnoreCase)) &&
-           (string.IsNullOrWhiteSpace(FilterTitle) || l.BookCopyId.ToString().Contains(FilterTitle, StringComparison.OrdinalIgnoreCase)));
+           (string.IsNullOrWhiteSpace(FilterTitle) || l.BookTitle.Contains(FilterTitle, StringComparison.OrdinalIgnoreCase)));
 
     private IEnumerable<MyLoanRowVm> PagedItems =>
         FilteredItems.Skip((CurrentPage - 1) * PageSize).Take(PageSize);

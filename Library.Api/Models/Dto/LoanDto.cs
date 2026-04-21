@@ -11,6 +11,7 @@ namespace Library.Api.Models.Dto
         public DateOnly loanDate { get; set; }
         public DateOnly dueDate { get; set; }
         public LoanStatus status { get; set; }
+        public string bookTitle { get; set; } = string.Empty;
         public BookCopyDto? BookCopy { get; set; }
     }
 }

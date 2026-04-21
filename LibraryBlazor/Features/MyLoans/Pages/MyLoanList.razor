@@ -56,6 +56,8 @@
         Loans = (result.Data ?? Array.Empty<MyLoanDto>())
             .Select(b => new MyLoanRowVm(b))
             .ToList();
+        Console.WriteLine($"My loans is {Loans}");
+
     }
 
     private Task OpenExtendLoan(MyLoanRowVm loan)
