@@ -2,6 +2,7 @@
 @using LibraryBlazor.Features.Books.Models
 @using LibraryBlazor.Features.Books.Components
 @using LibraryBlazor.Http
+@using LibraryBlazor.Components
 @inject LibraryBlazor.Features.Books.Services.BookApi BookApi
 
 <PageTitle>Books</PageTitle>
@@ -31,13 +32,26 @@
 
 <ConfirmationModal IsOpen="@_showDeleteModal"
                    IsOpenChanged="@(v => _showDeleteModal = v)"
-                   Title="@ConfirmTitle"
-                   Message="@ConfirmMessage"
-                   IsWarning="@ConfirmIsWarning"
+                   Title="Delete confirmation"
+                   Message="@DeleteMessage"
+                   IsWarning="true"
                    CancelText="Cancel"
-                   ConfirmText="@ConfirmButtonText"
+                   ConfirmText="Yes"
                    OnCancel="CloseDeleteModal"
-                   OnConfirm="ConfirmAsync" />
+                   OnConfirm="DeleteSelected" />
+
+<DueDateModal IsOpen="@_showLoanModal"
+              IsOpenChanged="@(v => _showLoanModal = v)"
+              Saving="@_saving"
+              Error="@_modalError"
+              Title="New Loan"
+              SubjectLabel="Book"
+              SubjectValue="@_selectedBook?.Title"
+              DueDateLabel="Due Date"
+              NewDueDate="@_loanDueDate"
+              NewDueDateChanged="@((DateOnly v) => _loanDueDate = v)"
+              OnCancel="CloseLoanModal"
+              OnConfirm="SaveLoanAsync" />
 
 @code {
     private List<BookRowVm> Books = new();
@@ -50,13 +64,14 @@
 
     private bool _showModal;
     private bool _showDeleteModal;
+    private bool _showLoanModal;
     private bool _saving;
     private string? _modalError;
     private Guid? _editingId;
     private BookEditModel _form = new();
 
-    private ConfirmAction _confirmAction;
-    private string? _unavailableMessage;
+    private BookRowVm? _selectedBook;
+    private DateOnly _loanDueDate;
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
@@ -106,80 +121,29 @@
     {
         var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
         _numberOfSelectedBooks = ids.Count;
-        _confirmAction = ConfirmAction.Delete;
         _showDeleteModal = true;
         return Task.CompletedTask;
     }
 
-    private Task OpenLoan()
+    private Task OpenLoan(BookRowVm book)
     {
-        var selectedBooks = Books.Where(b => b.IsSelected).ToList();
-        _numberOfSelectedBooks = selectedBooks.Count;
-
-        var unavailable = selectedBooks.Where(b => b.CopiesAvailable <= 0).ToList();
-        if (unavailable.Any())
-        {
-            var names = string.Join(", ", unavailable.Select(b => $"\"{b.Title}\""));
-            _unavailableMessage = unavailable.Count == 1
-                ? $"The book {names} is not available for loan."
-                : $"The following books are not available for loan: {names}.";
-            _confirmAction = ConfirmAction.Info;
-        }
-        else
-        {
-            _unavailableMessage = null;
-            _confirmAction = ConfirmAction.Loan;
-        }
-
-        _showDeleteModal = true;
+        _selectedBook = book;
+        _loanDueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(30));
+        _modalError = null;
+        _showLoanModal = true;
         return Task.CompletedTask;
+    }
+
+    private void CloseLoanModal()
+    {
+        if (_saving) return;
+        _showLoanModal = false;
+        _modalError = null;
     }
 
     private string DeleteMessage => _numberOfSelectedBooks > 1
         ? "Are you sure that you want to delete these books?"
         : "Are you sure that you want to delete this book?";
-
-    private string LoanMessage => _numberOfSelectedBooks > 1
-    ? "Are you sure that you want to loan these books?"
-    : "Are you sure that you want to loan this book?";
-
-    private string ConfirmMessage => _confirmAction switch
-    {
-        ConfirmAction.Loan => LoanMessage,
-        ConfirmAction.Info => _unavailableMessage ?? "",
-        _ => DeleteMessage
-    };
-
-    private string ConfirmTitle => _confirmAction switch
-    {
-        ConfirmAction.Loan => "Loan confirmation",
-        ConfirmAction.Info => "Loan unavailable",
-        _ => "Delete confirmation"
-    };
-
-    private bool ConfirmIsWarning => _confirmAction is ConfirmAction.Delete or ConfirmAction.Info;
-
-    private string ConfirmButtonText => _confirmAction == ConfirmAction.Info ? "OK" : "Yes";
-
-    private Task ConfirmAsync() => _confirmAction switch
-    {
-        ConfirmAction.Loan => LoanSelected(),
-        ConfirmAction.Info => CloseDeleteModalAsync(),
-        _ => DeleteSelected()
-    };
-
-    private Task CloseDeleteModalAsync()
-    {
-        _showDeleteModal = false;
-        return Task.CompletedTask;
-    }
-
-    private enum ConfirmAction
-    {
-        Delete,
-        Loan,
-        Info
-    }
 
     private async Task DeleteSelected()
     {
@@ -197,19 +161,29 @@
         Books.RemoveAll(b => ids.Contains(b.Id));
     }
 
-    private async Task LoanSelected()
+    private async Task SaveLoanAsync()
     {
-        var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
+        if (_selectedBook is null) return;
+        _saving = true;
+        _modalError = null;
 
-        var result = await BookApi.CreateLoanAsync(
-            new CreateLoanRequestDto(
-                 ids));
-        if (!result.Success)
+        try
         {
-            _modalError = result.Message ?? "Failed to delete book.";
-            return;
+            var result = await BookApi.CreateLoanAsync(
+                new CreateLoanRequestDto(new List<Guid> { _selectedBook.Id }, _loanDueDate));
+            if (!result.Success)
+            {
+                _modalError = result.Message ?? "Failed to create loan.";
+                return;
+            }
+            _showLoanModal = false;
+            await ReloadAsync();
         }
-        _showDeleteModal = false;
+        finally
+        {
+            _saving = false;
+            StateHasChanged();
+        }
     }
 
     private void CloseModal()

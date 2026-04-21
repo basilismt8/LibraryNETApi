@@ -22,7 +22,7 @@ public partial class BooksTable
     [Parameter] public EventCallback OnNew { get; set; }
     [Parameter] public EventCallback OnEdit { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
-    [Parameter] public EventCallback OnLoan { get; set; }
+    [Parameter] public EventCallback<BookRowVm> OnLoan { get; set; }
 
 
     private IEnumerable<BookRowVm> FilteredItems =>

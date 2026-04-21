@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LibraryBlazor.Components;
 
-public partial class ExtendLoanModal
+public partial class DueDateModal
 {
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
@@ -10,6 +10,10 @@ public partial class ExtendLoanModal
     [Parameter] public bool Saving { get; set; }
     [Parameter] public string? Error { get; set; }
 
+    [Parameter] public string Title { get; set; } = "Select Due Date";
+    [Parameter] public string? SubjectLabel { get; set; }
+    [Parameter] public string? SubjectValue { get; set; }
+    [Parameter] public string DueDateLabel { get; set; } = "Due Date";
     [Parameter] public DateOnly? CurrentDueDate { get; set; }
 
     [Parameter] public DateOnly NewDueDate { get; set; }

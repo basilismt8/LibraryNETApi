@@ -53,7 +53,8 @@
                         <td class="action-cell">
                             <button type="button" class="btn btn-extend-loan" title="Extend loan"
                                     @onclick="() => OnExtendLoan.InvokeAsync(loan)"
-                                    @onclick:stopPropagation="true">
+                                    @onclick:stopPropagation="true"
+                                    disabled="@(!IsLoanExtendable(loan))">
                                 <i class="bi bi-clock-history"></i>
                             </button>
                         </td>

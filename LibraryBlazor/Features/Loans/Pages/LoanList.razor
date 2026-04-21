@@ -20,11 +20,15 @@
             PageSizeChanged="@(v => PageSize = v)"
             OnExtendLoan="OpenExtendLoan" />
 
-<ExtendLoanModal IsOpen="@_showModal"
+<DueDateModal IsOpen="@_showModal"
                   IsOpenChanged="@(v => _showModal = v)"
                   Saving="@_saving"
                   Error="@_modalError"
+                  Title="Extend Loan"
+                  SubjectLabel="Book"
+                  SubjectValue="@_selectedLoan?.BookTitle"
                   CurrentDueDate="@_selectedLoan?.DueDate"
+                  DueDateLabel="New Due Date"
                   NewDueDate="@_newDueDate"
                   NewDueDateChanged="@((DateOnly v) => _newDueDate = v)"
                   OnCancel="CloseModal"

@@ -77,6 +77,9 @@ public partial class MyLoansTable
 
     private void ToggleSelection(MyLoanRowVm loan) => loan.IsSelected = !loan.IsSelected;
 
+    private static bool IsLoanExtendable(MyLoanRowVm loan) =>
+        loan.Status == MyLoanStatus.borrowed;
+
     private async Task OnFilterIdInput(ChangeEventArgs e)
     {
         await FilterIdChanged.InvokeAsync(e.Value?.ToString() ?? "");

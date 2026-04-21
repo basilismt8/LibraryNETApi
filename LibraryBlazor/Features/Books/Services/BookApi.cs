@@ -31,7 +31,7 @@ public sealed class BookApi
     => _api.PostAsync("api/loans", new
     {
         bookIds = body.BookIds,
-        dueDate = DateTime.Now.ToString("yyyy-MM-dd")
+        dueDate = body.DueDate.ToString("yyyy-MM-dd")
     }, cancellationToken);
 
     public Task<ApiResult> UpdateBookAsync( Guid id, UpdateBookRequestDto body, CancellationToken cancellationToken = default)
