@@ -1,11 +1,7 @@
-﻿using AutoMapper;
-using Library.Api.CustomActionFilters;
-using Library.Api.Data;
-using Library.Api.Models.Domain;
+﻿using Library.Api.CustomActionFilters;
 using Library.Api.Models.Dto;
-using Library.Api.Repositories;
+using Library.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -15,27 +11,22 @@ namespace Library.Api.Controllers
     [ApiController]
     public class LoansController : ControllerBase
     {
-        private readonly LibraryDbContext dbContext;
-        private readonly ILoanRepository loanRepository;
-        private readonly IMapper mapper;
-        private readonly ILogger<LoansController> logger;
+        private readonly ILoanService _loanService;
+        private readonly ILogger<LoansController> _logger;
 
-        public LoansController(LibraryDbContext dbContext, ILoanRepository loanRepository, IMapper mapper, ILogger<LoansController> logger)
+        public LoansController(ILoanService loanService, ILogger<LoansController> logger)
         {
-            this.dbContext = dbContext;
-            this.loanRepository = loanRepository;
-            this.mapper = mapper;
-            this.logger = logger;
+            _loanService = loanService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetAll()
         {
-            var loansDomain = await loanRepository.getAllAsync();
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<List<LoanDto>>(loansDomain));
+            _logger.LogInformation("GET /api/loans called by {User}", User.Identity?.Name);
+            var loans = await _loanService.GetAllAsync();
+            return Ok(loans);
         }
 
         [HttpGet("user/current")]
@@ -46,26 +37,18 @@ namespace Library.Api.Controllers
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-
-            var loansDomain = await loanRepository.getAllLoansByUserIdAsync(userId);
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<List<LoanDto>>(loansDomain));
+            var loans = await _loanService.GetByUserIdAsync(userId);
+            return Ok(loans);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:Guid}")]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var loanDomain = await loanRepository.getByIdAsync(id);
-
-            if (loanDomain == null)
-            {
-                return NotFound();
-            }
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<LoanDto>(loanDomain));
+            var result = await _loanService.GetByIdAsync(id);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpPost]
@@ -73,57 +56,25 @@ namespace Library.Api.Controllers
         [Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> Create([FromBody] CreateLoanRequestDto createLoanRequestDto)
         {
-            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-
-            var loanDomains = await loanRepository.CreateAsync(userId, createLoanRequestDto);
-
-            if (loanDomains == null)
-            {
-                return BadRequest("One or more books not found or unavailable.");
-            }
-
-            var loanDtos = loanDomains.Select(mapper.Map<LoanDto>).ToList();
-
-            return Ok(loanDtos);
-
+            var result = await _loanService.CreateAsync(userId, createLoanRequestDto);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
-
 
         [HttpPut("{id:Guid}/extend")]
         [validateModel]
-        [Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> ExtendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto)
         {
-            var extendLoanPeriodDomain = mapper.Map<Loan>(extendLoanRequestDto);
-
-            var existingLoan = await loanRepository.getByIdAsync(id);  // Assuming you have a getByIdAsync method
-
-            if (existingLoan == null)
-            {
-                return NotFound("Loan not found.");
-            }
-
-            if (existingLoan.status == LoanStatus.overdue)
-            {
-                return BadRequest("Cannot extend an overdue loan.");
-            }
-
-            if (existingLoan.dueDate >= extendLoanPeriodDomain.dueDate)
-            {
-                return BadRequest("New due date must be after the current due date.");
-            }
-
-            extendLoanPeriodDomain = await loanRepository.extendLoanPeriodDomainAsync(id, extendLoanPeriodDomain);
-
-            if (extendLoanPeriodDomain == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(mapper.Map<LoanDto>(extendLoanPeriodDomain));
+            var result = await _loanService.ExtendAsync(id, extendLoanRequestDto);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
     }
 }

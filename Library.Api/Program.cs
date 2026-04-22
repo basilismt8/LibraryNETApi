@@ -3,6 +3,7 @@ using Library.Api.Data;
 using Library.Api.Mappings;
 using Library.Api.Repositories;
 using Library.Api.Services;
+using Library.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +77,10 @@ builder.Services.AddScoped<IFineRepository, SQLFineRepository>();
 builder.Services.AddScoped<ILoanRepository, SQLLoanRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IEmailServiceInterface, EmailService>();
+
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IFineService, FineService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

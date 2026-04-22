@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using Library.Api.CustomActionFilters;
-using Library.Api.Data;
+﻿using Library.Api.CustomActionFilters;
 using Library.Api.Models.Dto;
-using Library.Api.Repositories;
+using Library.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Api.Controllers
@@ -13,74 +10,53 @@ namespace Library.Api.Controllers
     [ApiController]
     public class FinesController : ControllerBase
     {
-        private readonly LibraryDbContext dbContext;
-        private readonly IFineRepository fineRepository;
-        private readonly IMapper mapper;
+        private readonly IFineService _fineService;
+        private readonly ILogger<FinesController> _logger;
 
-        public FinesController(LibraryDbContext dbContext, IFineRepository fineRepository, IMapper mapper)
+        public FinesController(IFineService fineService, ILogger<FinesController> logger)
         {
-            this.dbContext = dbContext;
-            this.fineRepository = fineRepository;
-            this.mapper = mapper;
+            _fineService = fineService;
+            _logger = logger;
         }
 
         [HttpGet]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetAll()
         {
-            var finesDomain = await fineRepository.getAllAsync();
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<List<FineDto>>(finesDomain));
+            _logger.LogInformation("GET /api/fines called by {User}", User.Identity?.Name);
+            var fines = await _fineService.GetAllAsync();
+            return Ok(fines);
         }
 
         [HttpGet("{id:Guid}")]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var fineDomain = await fineRepository.getByIdAsync(id);
-
-            if (fineDomain == null)
-            {
-                return NotFound();
-            }
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<FineDto>(fineDomain));
+            var result = await _fineService.GetByIdAsync(id);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpPost("addFine")]
         [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> addFine([FromBody] AddFineRequestDto addFineRequestDto)
+        public async Task<IActionResult> AddFine([FromBody] AddFineRequestDto addFineRequestDto)
         {
-
-            var fineDomains = await fineRepository.addFineAsync(addFineRequestDto);
-
-            if (fineDomains == null)
-            {
-                return BadRequest($"Loan with ID '{addFineRequestDto.loanId}' was not found.");
-            }
-
-
-            return Ok(mapper.Map<FineDto>(fineDomains));
-
+            var result = await _fineService.AddFineAsync(addFineRequestDto);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpPost("processOverdueLoans/{id:Guid}")]
-        [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> processOverdueLoans(Guid id)
+        public async Task<IActionResult> ProcessOverdueLoans(Guid id)
         {
-
-            var fineDomains = await fineRepository.processOverdueLoansAsync(id);
-
-            if (fineDomains == null)
-            {
-                return BadRequest("Something went wrong...");
-            }
-
-            return Ok(mapper.Map<List<FineDto>>(fineDomains));
+            var result = await _fineService.ProcessOverdueLoansAsync(id);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
     }
 }

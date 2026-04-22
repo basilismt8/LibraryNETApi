@@ -1,15 +1,9 @@
-﻿using AutoMapper;
-using Azure.Core.Serialization;
-using Library.Api.CustomActionFilters;
-using Library.Api.Data;
-using Library.Api.Models.Domain;
+﻿using Library.Api.CustomActionFilters;
 using Library.Api.Models.Dto;
-using Library.Api.Repositories;
+using Library.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using System.Security.Claims;
 
 namespace Library.Api.Controllers
 {
@@ -17,102 +11,75 @@ namespace Library.Api.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly LibraryDbContext dbContext;
-        private readonly IBookRepository bookRepository;
-        private readonly IMapper mapper;
-        private readonly ILogger<BooksController> logger;
+        private readonly IBookService _bookService;
+        private readonly ILogger<BooksController> _logger;
 
-        public BooksController(LibraryDbContext dbContext,
-            IBookRepository bookRepository, IMapper mapper, ILogger<BooksController> logger)
+        public BooksController(IBookService bookService, ILogger<BooksController> logger)
         {
-            this.dbContext = dbContext;
-            this.bookRepository = bookRepository;
-            this.bookRepository = bookRepository;
-            this.mapper = mapper;
-            this.logger = logger;
+            _bookService = bookService;
+            _logger = logger;
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> GetAll() {
-            logger.LogInformation("Get all books called");
-            var booksDomain = await bookRepository.getAllAsync();
-            logger.LogInformation($"all books are {JsonSerializer.Serialize(booksDomain)}");
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<List<BookDto>>(booksDomain));
+        [Authorize(Roles = "Librarian,Member")]
+        public async Task<IActionResult> GetAll()
+        {
+            _logger.LogInformation("GET /api/books called by {User}", User.Identity?.Name);
+            var books = await _bookService.GetAllAsync();
+            return Ok(books);
         }
 
-        [HttpGet("{id}")]
-        //[Authorize(Roles = "Librarian,Member")]
+        [HttpGet("{id:Guid}")]
+        [Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var bookDomain = await bookRepository.getByIdAsync(id);
-
-            if (bookDomain == null) {
-                return NotFound();
-            }
-
-            //Map Domain Model to DTO and return it
-            return Ok(mapper.Map<BookDto>(bookDomain));
+            var result = await _bookService.GetByIdAsync(id);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpPost]
         [validateModel]
-        //[Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> Create([FromBody] CreateBookRequestDto createBookRequestDto)
         {
-            var bookDomain = mapper.Map<Book>(createBookRequestDto);
-
-            bookDomain = await bookRepository.CreateAsync(bookDomain);
-
-            return CreatedAtAction(nameof(GetById), new { bookDomain.id }, mapper.Map<BookDto>(bookDomain));
+            var result = await _bookService.CreateAsync(createBookRequestDto);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data!.id }, result.Data);
         }
 
         [HttpPut("{id}")]
         [validateModel]
-        //[Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
         {
-            var bookDomain = mapper.Map<Book>(updateBookRequestDto);
-
-            bookDomain = await bookRepository.UpdateAsync(id, bookDomain);
-
-            if (bookDomain == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(mapper.Map<BookDto>(bookDomain));
+            var result = await _bookService.UpdateAsync(id, updateBookRequestDto);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpDelete("{id:Guid}")]
-        //[Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var bookDomain = await bookRepository.DeleteAsync(id);
-            if (bookDomain == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(mapper.Map<BookDto>(bookDomain));
+            var result = await _bookService.DeleteAsync(id);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
-
 
         [HttpPut("returnBook")]
         [validateModel]
-        //[Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> ReturnBook([FromBody] ReturnBooksRequesDto returnBooksRequest)
         {
-            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
-
-            var returnedBook = await bookRepository.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId);
-
-            if (returnedBook == null)
-                return NotFound("Book was not returned.");
-
-            return Ok(mapper.Map<BookDto>(returnedBook));
+            var result = await _bookService.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
     }
 }
