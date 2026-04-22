@@ -21,12 +21,12 @@
 
                     <div class="book-form-group">
                         <label>Copies Available</label>
-                        <input type="number" @bind="Model.CopiesAvailable" disabled="@Saving" />
+                        <input type="number" min="0" @bind="Model.CopiesAvailable" disabled="@Saving" />
                     </div>
 
                     <div class="book-form-group">
                         <label>Total Copies</label>
-                        <input type="number" @bind="Model.TotalCopies" disabled="@Saving" />
+                        <input type="number" min="0" @bind="Model.TotalCopies" disabled="@Saving" />
                     </div>
                 </div>
             </div>

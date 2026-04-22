@@ -211,6 +211,12 @@
                 return;
             }
 
+            if (_form.CopiesAvailable < 0 || _form.TotalCopies < 0)
+            {
+                _modalError = "Copies Available and Total Copies must be 0 or greater.";
+                return;
+            }
+
             ApiResult result;
 
             if (_editingId is null)

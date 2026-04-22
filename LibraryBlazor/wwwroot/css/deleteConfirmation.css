@@ -1,8 +1,8 @@
-﻿/* Modal overlay */
+/* Modal overlay */
 .book-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15,23,42,.55);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(2px);
     display: none;
     z-index: 1050;
@@ -21,13 +21,13 @@
     }
 
 .book-modal {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    background: #2c1d16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     width: 100%;
     max-width: 860px;
     margin: auto;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.18),0 8px 10px -6px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     position: relative;
     animation: scaleIn .15s ease;
 }
@@ -55,12 +55,12 @@
     font-size: 20px;
     font-weight: 600;
     margin: 0;
-    color: #0f172a;
+    color: #c9956a;
 }
 
 .book-modal-close {
-    border: 1px solid #e2e8f0;
-    background: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
     width: 32px;
     height: 32px;
     border-radius: 6px;
@@ -68,11 +68,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #475569;
+    color: #9e8a78;
 }
 
     .book-modal-close:hover {
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.10);
+        color: #faf6f1;
     }
 
 .book-modal-body {
@@ -85,13 +86,15 @@
     font-size: 14px;
     line-height: 1.4;
     white-space: pre-line;
-    color: #374151;
+    color: #ddd0c3;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .confirmation-message.warning {
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #7f1d1d;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.10);
+    color: #fca5a5;
 }
 
 .book-modal-footer {
@@ -99,7 +102,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    border-top: 1px solid #f1f5f9;
+    border-top: none !important;
 }
 
 .bm-btn {
@@ -116,27 +119,47 @@
 }
 
     .bm-btn:focus-visible {
-        outline: 2px solid rgba(30,144,255,0.4);
+        outline: 2px solid rgba(176, 122, 74, 0.5);
         outline-offset: 2px;
     }
 
 .bm-btn-secondary {
-    background: #fff;
-    border-color: #d1d5db;
-    color: #1e293b;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #ddd0c3;
 }
 
     .bm-btn-secondary:hover {
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.10);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: #faf6f1;
     }
 
 .bm-btn-primary {
-    background: #1e293b;
-    border-color: #1e293b;
+    background: #b07a4a;
+    border-color: #b07a4a;
     color: #fff;
 }
 
     .bm-btn-primary:hover {
-        background: #334155;
-        border-color: #334155;
+        background: #c9956a;
+        border-color: #c9956a;
     }
+
+    .bm-btn-primary:disabled, .bm-btn-secondary:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+.bm-btn-danger {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+}
+
+    .bm-btn-danger:hover {
+        background: rgba(239, 68, 68, 0.20);
+        border-color: rgba(239, 68, 68, 0.5);
+        color: #fecaca;
+    }
+
