@@ -3,6 +3,7 @@
 @using LibraryBlazor.Features.Books.Components
 @using LibraryBlazor.Http
 @using LibraryBlazor.Components
+@implements IDisposable
 @inject LibraryBlazor.Features.Books.Services.BookApi BookApi
 
 <PageTitle>Books</PageTitle>
@@ -54,6 +55,8 @@
               OnConfirm="SaveLoanAsync" />
 
 @code {
+    private readonly CancellationTokenSource _cts = new();
+
     private List<BookRowVm> Books = new();
 
     private string FilterId = "";
@@ -75,9 +78,11 @@
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
+    public void Dispose() => _cts.Cancel();
+
     private async Task ReloadAsync()
     {
-        var result = await BookApi.GetBooksAsync();
+        var result = await BookApi.GetBooksAsync(_cts.Token);
         if (!result.Success)
         {
             Books = new();
@@ -150,7 +155,7 @@
         var ids = Books.Where(b => b.IsSelected).Select(b => b.Id).ToList();
         foreach (var id in ids)
         {
-            var result = await BookApi.DeleteBookAsync(id);
+            var result = await BookApi.DeleteBookAsync(id, _cts.Token);
             if (!result.Success)
             {
                 _modalError = result.Message ?? "Failed to delete book.";
@@ -170,7 +175,7 @@
         try
         {
             var result = await BookApi.CreateLoanAsync(
-                new CreateLoanRequestDto(new List<Guid> { _selectedBook.Id }, _loanDueDate));
+                new CreateLoanRequestDto(new List<Guid> { _selectedBook.Id }, _loanDueDate), _cts.Token);
             if (!result.Success)
             {
                 _modalError = result.Message ?? "Failed to create loan.";
@@ -225,7 +230,7 @@
                     new CreateBookRequestDto(
                         _form.Title.Trim(),
                         _form.CopiesAvailable,
-                        _form.TotalCopies));
+                        _form.TotalCopies), _cts.Token);
             }
             else
             {
@@ -234,7 +239,7 @@
                     new UpdateBookRequestDto(
                         _form.Title.Trim(),
                         _form.CopiesAvailable,
-                        _form.TotalCopies));
+                        _form.TotalCopies), _cts.Token);
             }
 
             if (!result.Success)

@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Components;
 
 namespace LibraryBlazor.Features.Auth.Pages;
 
-public partial class Register
+public partial class Register : IDisposable
 {
     [Inject] public AuthApi AuthApi { get; set; } = default!;
     [Inject] public JwtAuthStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] public NavigationManager Nav { get; set; } = default!;
+
+    private readonly CancellationTokenSource _cts = new();
 
     protected RegisterVm Model { get; } = new();
     protected bool _saving;
@@ -38,7 +40,7 @@ public partial class Register
             }
 
             var register = await AuthApi.RegisterAsync(
-                new RegisterRequestDto(Model.Email.Trim(), Model.Password, Roles: ["Member"]))
+                new RegisterRequestDto(Model.Email.Trim(), Model.Password, Roles: ["Member"]), _cts.Token)
                 .ConfigureAwait(false);
 
             if (!register.Success)
@@ -47,7 +49,7 @@ public partial class Register
                 return;
             }
 
-            var login = await AuthApi.LoginAsync(new LoginRequestDto(Model.Email.Trim(), Model.Password))
+            var login = await AuthApi.LoginAsync(new LoginRequestDto(Model.Email.Trim(), Model.Password), _cts.Token)
                 .ConfigureAwait(false);
 
             if (!login.Success)
@@ -75,4 +77,6 @@ public partial class Register
             _saving = false;
         }
     }
+
+    public void Dispose() => _cts.Cancel();
 }

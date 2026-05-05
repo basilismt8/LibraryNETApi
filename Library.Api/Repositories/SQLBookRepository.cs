@@ -19,14 +19,14 @@ namespace Library.Api.Repositories
             this.emailService = emailService;
         }
 
-        public async Task<Book> CreateAsync(Book book)
+        public async Task<Book> CreateAsync(Book book, CancellationToken cancellationToken = default)
         {
-            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 // Add the book
-                await dbContext.Books.AddAsync(book);
-                await dbContext.SaveChangesAsync();
+                await dbContext.Books.AddAsync(book, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
 
                 // Create X BookCopy records based on totalCopies
                 for (int i = 0; i < book.totalCopies; i++)
@@ -38,30 +38,30 @@ namespace Library.Api.Repositories
                         copyCode = GenerateUniqueCopyCode(book.id, i + 1),
                         status = CopyStatus.Available
                     };
-                    await dbContext.BookCopies.AddAsync(bookCopy);
+                    await dbContext.BookCopies.AddAsync(bookCopy, cancellationToken);
                 }
 
                 // Set copiesAvailable equal to totalCopies
                 book.copiesAvailable = book.totalCopies;
                 dbContext.Books.Update(book);
 
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return book;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
 
-        public async Task<Book?> DeleteAsync(Guid id)
+        public async Task<Book?> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var existingBook = await dbContext.Books
                 .Include(b => b.BookCopies)
-                .FirstOrDefaultAsync(x => x.id == id);
+                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
 
             if (existingBook == null)
             {
@@ -71,7 +71,7 @@ namespace Library.Api.Repositories
             // Check if any copies are currently on loan
             var copiesOnLoan = await dbContext.BookCopies
                 .Where(bc => bc.bookId == id && bc.status == CopyStatus.OnLoan)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             if (copiesOnLoan.Any())
             {
@@ -79,7 +79,7 @@ namespace Library.Api.Repositories
                 var copyIds = copiesOnLoan.Select(c => c.id).ToList();
                 var loansWithBook = await dbContext.Loans
                     .Where(l => copyIds.Contains(l.bookCopyId) && (l.status == LoanStatus.borrowed || l.status == LoanStatus.overdue))
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 // Notify users
                 var userIds = loansWithBook.Select(l => l.userId).Distinct().ToList();
@@ -100,30 +100,30 @@ namespace Library.Api.Repositories
 
             // Cascade delete will handle BookCopies and their Loans
             dbContext.Books.Remove(existingBook);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return existingBook;
         }
 
-        public async Task<List<Book>> getAllAsync()
+        public async Task<List<Book>> getAllAsync(CancellationToken cancellationToken = default)
         {
-            return await dbContext.Books.ToListAsync();
+            return await dbContext.Books.ToListAsync(cancellationToken);
         }
 
-        public async Task<Book?> getByIdAsync(Guid id)
+        public async Task<Book?> getByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await dbContext.Books
                 .Include(b => b.BookCopies)
-                .FirstOrDefaultAsync(x => x.id == id);
+                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
         }
 
-        public async Task<Loan?> BorrowBookAsync(Guid userId, Guid bookId, DateOnly dueDate)
+        public async Task<Loan?> BorrowBookAsync(Guid userId, Guid bookId, DateOnly dueDate, CancellationToken cancellationToken = default)
         {
-            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 // Find the book
-                var book = await dbContext.Books.FirstOrDefaultAsync(b => b.id == bookId);
+                var book = await dbContext.Books.FirstOrDefaultAsync(b => b.id == bookId, cancellationToken);
                 if (book == null || book.copiesAvailable <= 0)
                 {
                     return null;
@@ -131,7 +131,7 @@ namespace Library.Api.Repositories
 
                 // Find the first available BookCopy for this book
                 var availableCopy = await dbContext.BookCopies
-                    .FirstOrDefaultAsync(bc => bc.bookId == bookId && bc.status == CopyStatus.Available);
+                    .FirstOrDefaultAsync(bc => bc.bookId == bookId && bc.status == CopyStatus.Available, cancellationToken);
 
                 if (availableCopy == null)
                 {
@@ -156,29 +156,29 @@ namespace Library.Api.Repositories
                     dueDate = dueDate,
                     status = LoanStatus.borrowed
                 };
-                await dbContext.Loans.AddAsync(loan);
+                await dbContext.Loans.AddAsync(loan, cancellationToken);
 
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return loan;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
 
-        public async Task<Book?> ReturnBookAsync(Guid userId, Guid bookCopyId)
+        public async Task<Book?> ReturnBookAsync(Guid userId, Guid bookCopyId, CancellationToken cancellationToken = default)
         {
-            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 // Find the BookCopy
                 var bookCopy = await dbContext.BookCopies
                     .Include(bc => bc.Book)
-                    .FirstOrDefaultAsync(bc => bc.id == bookCopyId);
+                    .FirstOrDefaultAsync(bc => bc.id == bookCopyId, cancellationToken);
 
                 if (bookCopy == null || bookCopy.status != CopyStatus.OnLoan)
                 {
@@ -187,7 +187,7 @@ namespace Library.Api.Repositories
 
                 // Find the active loan for this copy and user
                 var loan = await dbContext.Loans
-                    .FirstOrDefaultAsync(l => l.bookCopyId == bookCopyId && l.userId == userId && l.status == LoanStatus.borrowed);
+                    .FirstOrDefaultAsync(l => l.bookCopyId == bookCopyId && l.userId == userId && l.status == LoanStatus.borrowed, cancellationToken);
 
                 if (loan == null)
                 {
@@ -209,32 +209,32 @@ namespace Library.Api.Repositories
 
                 // Mark any unpaid fine as paid
                 var fine = await dbContext.Fines
-                    .FirstOrDefaultAsync(f => f.userId == userId && f.loanId == loan.id && !f.paid);
+                    .FirstOrDefaultAsync(f => f.userId == userId && f.loanId == loan.id && !f.paid, cancellationToken);
                 if (fine != null)
                 {
                     fine.paid = true;
                     dbContext.Fines.Update(fine);
                 }
 
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return book;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
 
-        public async Task<Book?> UpdateAsync(string id, Book book)
+        public async Task<Book?> UpdateAsync(string id, Book book, CancellationToken cancellationToken = default)
         {
             // Convert string → Guid
             if (!Guid.TryParse(id, out Guid guidId))
                 return null;
 
-            var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == guidId);
+            var existingBook = await dbContext.Books.FirstOrDefaultAsync(x => x.id == guidId, cancellationToken);
             if (existingBook == null)
             {
                 Console.WriteLine("this book does not exist");
@@ -245,7 +245,7 @@ namespace Library.Api.Repositories
             existingBook.copiesAvailable = book.copiesAvailable;
             existingBook.totalCopies = book.totalCopies;
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return book;
         }
 

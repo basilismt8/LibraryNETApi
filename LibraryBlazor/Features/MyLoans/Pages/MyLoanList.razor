@@ -3,130 +3,66 @@
 @using LibraryBlazor.Features.MyLoans.Components
 @using LibraryBlazor.Shared.Models
 @using LibraryBlazor.Http
-@inject LibraryBlazor.Features.MyLoans.Services.MyLoansApi MyLoansApi
 
-<PageTitle>My Loans</PageTitle>
+<PageTitle>@(_activeTab == "loans" ? "My Loans" : "My Fines")</PageTitle>
 
-<MyLoansTable Items="Loans"
-            FilterId="@FilterId"
-            FilterIdChanged="@(v => FilterId = v)"
-            FilterTitle="@FilterTitle"
-            FilterTitleChanged="@(v => FilterTitle = v)"
-            CurrentPage="@CurrentPage"
-            CurrentPageChanged="@(v => CurrentPage = v)"
-            PageSize="@PageSize"
-            PageSizeChanged="@(v => PageSize = v)"
-            OnExtendLoan="OpenExtendLoan" />
+<div class="page-header mb-3">
+    <h3 class="page-title">@(_activeTab == "loans" ? "My Loans" : "My Fines")</h3>
+</div>
+
+<ul class="nav myloans-tabs">
+    <li class="nav-item">
+        <button class="myloans-tab-btn @(_activeTab == "loans" ? "active" : "")" @onclick='() => _activeTab = "loans"'>
+            My Loans
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="myloans-tab-btn @(_activeTab == "fines" ? "active" : "")" @onclick='() => _activeTab = "fines"'>
+            My Fines
+            @if (Fines.Any(f => !f.Paid))
+            {
+                <span class="badge ms-1" style="background:#c0392b; font-size:10px;">@Fines.Count(f => !f.Paid)</span>
+            }
+        </button>
+    </li>
+</ul>
+
+@if (_activeTab == "loans")
+{
+    <MyLoansTable Items="Loans"
+                FilterId="@FilterId"
+                FilterIdChanged="@(v => FilterId = v)"
+                FilterTitle="@FilterTitle"
+                FilterTitleChanged="@(v => FilterTitle = v)"
+                CurrentPage="@CurrentPage"
+                CurrentPageChanged="@(v => CurrentPage = v)"
+                PageSize="@PageSize"
+                PageSizeChanged="@(v => PageSize = v)"
+                OnExtendLoan="OpenExtendLoan" />
+}
+else
+{
+    <MyFinesTable Items="Fines"
+                  FilterTitle="@FinesFilterTitle"
+                  FilterTitleChanged="@(v => FinesFilterTitle = v)"
+                  CurrentPage="@FinesCurrentPage"
+                  CurrentPageChanged="@(v => FinesCurrentPage = v)"
+                  PageSize="@FinesPageSize"
+                  PageSizeChanged="@(v => FinesPageSize = v)" />
+}
 
 <DueDateModal IsOpen="@_showModal"
-                  IsOpenChanged="@(v => _showModal = v)"
-                  Saving="@_saving"
-                  Error="@_modalError"
-                  Title="Extend Loan"
-                  SubjectLabel="Book"
-                  SubjectValue="@_selectedLoan?.BookTitle"
-                  CurrentDueDate="@_selectedLoan?.DueDate"
-                  DueDateLabel="New Due Date"
-                  NewDueDate="@_newDueDate"
-                  NewDueDateChanged="@((DateOnly v) => _newDueDate = v)"
-                  OnCancel="CloseModal"
-                  OnConfirm="SaveAsync" />
+              IsOpenChanged="@(v => _showModal = v)"
+              Saving="@_saving"
+              Error="@_modalError"
+              Title="Extend Loan"
+              SubjectLabel="Book"
+              SubjectValue="@_selectedLoan?.BookTitle"
+              CurrentDueDate="@_selectedLoan?.DueDate"
+              DueDateLabel="New Due Date"
+              NewDueDate="@_newDueDate"
+              NewDueDateChanged="@((DateOnly v) => _newDueDate = v)"
+              OnCancel="CloseModal"
+              OnConfirm="SaveAsync" />
 
-@code {
-    private List<MyLoanRowVm> Loans = new();
-    private bool _showModal;
-    private bool _saving;
-    private string FilterId = "";
-    private MyLoanRowVm? _selectedLoan;
-    private string FilterTitle = "";
-    private int CurrentPage = 1;
-    private int PageSize = 10;
-    private int _numberOfSelectedLoans = 0;
-    private DateOnly _newDueDate;
-    private string? _modalError;
 
-    protected override async Task OnInitializedAsync() => await ReloadAsync();
-
-    private async Task ReloadAsync()
-    {
-        var result = await MyLoansApi.GetMyLoansAsync();
-        if (!result.Success)
-        {
-            Loans = new();
-            _modalError = result.Message;
-            return;
-        }
-
-        Loans = (result.Data ?? Array.Empty<MyLoanDto>())
-            .Select(b => new MyLoanRowVm(b))
-            .ToList();
-        Console.WriteLine($"My loans is {Loans}");
-
-    }
-
-    private Task OpenExtendLoan(MyLoanRowVm loan)
-    {
-        _selectedLoan = loan;
-        _newDueDate = loan.DueDate;
-        _modalError = null;
-        _showModal = true;
-        return Task.CompletedTask;
-    }
-
-    private void CloseModal()
-    {
-        if (_saving) return;
-        _showModal = false;
-        _modalError = null;
-    }
-
-    private async Task SaveAsync()
-    {
-        if (_selectedLoan is null) return;
-
-        _saving = true;
-        _modalError = null;
-
-        try
-        {
-
-            if (string.IsNullOrWhiteSpace(_newDueDate.ToString()))
-            {
-                _modalError = "DueDate is required.";
-                return;
-            }
-
-            ApiResult result;
-
-            result = await MyLoansApi.ExtendLoanAsync(_selectedLoan.Id,
-                    new ExtendLoanRequestDto(_newDueDate));
-
-            
-            if (!result.Success)
-            {
-                if (result.ValidationErrors != null && result.ValidationErrors.Any())
-                {
-                    var messages = result.ValidationErrors
-                        .SelectMany(e => e.Value)
-                        .ToList();
-
-                    _modalError = string.Join("\n", messages);
-                }
-                else
-                {
-                    _modalError = result.Message ?? "Unknown error";
-                }
-
-                return;
-            }
-
-            _showModal = false;
-            await ReloadAsync();
-        }
-        finally
-        {
-            _saving = false;
-            StateHasChanged();
-        }
-    }
-}

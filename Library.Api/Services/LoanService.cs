@@ -18,17 +18,17 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<LoanDto>> GetAllAsync()
+        public async Task<List<LoanDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all loans");
-            var loans = await _loanRepository.getAllAsync();
+            var loans = await _loanRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} loans", loans.Count);
             return _mapper.Map<List<LoanDto>>(loans);
         }
 
-        public async Task<ServiceResult<LoanDto>> GetByIdAsync(Guid id)
+        public async Task<ServiceResult<LoanDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var loan = await _loanRepository.getByIdAsync(id);
+            var loan = await _loanRepository.getByIdAsync(id, cancellationToken);
             if (loan == null)
             {
                 _logger.LogWarning("Loan {Id} not found", id);
@@ -37,17 +37,17 @@ namespace Library.Api.Services
             return ServiceResult<LoanDto>.Ok(_mapper.Map<LoanDto>(loan));
         }
 
-        public async Task<List<LoanDto>> GetByUserIdAsync(Guid userId)
+        public async Task<List<LoanDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving loans for user {UserId}", userId);
-            var loans = await _loanRepository.getAllLoansByUserIdAsync(userId);
+            var loans = await _loanRepository.getAllLoansByUserIdAsync(userId, cancellationToken);
             return _mapper.Map<List<LoanDto>>(loans);
         }
 
-        public async Task<ServiceResult<List<LoanDto>>> CreateAsync(Guid userId, CreateLoanRequestDto dto)
+        public async Task<ServiceResult<List<LoanDto>>> CreateAsync(Guid userId, CreateLoanRequestDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Creating loans for user {UserId}, books: {BookIds}", userId, string.Join(", ", dto.bookIds));
-            var loans = await _loanRepository.CreateAsync(userId, dto);
+            var loans = await _loanRepository.CreateAsync(userId, dto, cancellationToken);
             if (loans == null)
             {
                 _logger.LogWarning("Loan creation failed for user {UserId} — one or more books unavailable", userId);
@@ -57,11 +57,11 @@ namespace Library.Api.Services
             return ServiceResult<List<LoanDto>>.Ok(_mapper.Map<List<LoanDto>>(loans));
         }
 
-        public async Task<ServiceResult<LoanDto>> ExtendAsync(Guid loanId, ExtendLoanRequestDto dto)
+        public async Task<ServiceResult<LoanDto>> ExtendAsync(Guid loanId, ExtendLoanRequestDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Extending loan {LoanId} to {NewDueDate}", loanId, dto.dueDate);
 
-            var loan = await _loanRepository.getByIdAsync(loanId);
+            var loan = await _loanRepository.getByIdAsync(loanId, cancellationToken);
             if (loan == null)
             {
                 _logger.LogWarning("Loan {LoanId} not found for extension", loanId);
@@ -78,7 +78,7 @@ namespace Library.Api.Services
                 return ServiceResult<LoanDto>.BadRequest("New due date must be after the current due date.");
 
             var loanDomain = _mapper.Map<Loan>(dto);
-            var updated = await _loanRepository.extendLoanPeriodDomainAsync(loanId, loanDomain);
+            var updated = await _loanRepository.extendLoanPeriodDomainAsync(loanId, loanDomain, cancellationToken);
             if (updated == null)
                 return ServiceResult<LoanDto>.NotFound("Loan not found.");
 

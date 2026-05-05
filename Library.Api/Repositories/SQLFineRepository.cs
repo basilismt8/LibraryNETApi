@@ -14,11 +14,9 @@ namespace Library.Api.Repositories
             this.dbContext = dbContext;
         }
 
-        public async Task<Fine?> addFineAsync(AddFineRequestDto addFineRequestDto)
+        public async Task<Fine?> addFineAsync(AddFineRequestDto addFineRequestDto, CancellationToken cancellationToken = default)
         {
-
-
-            var loan = await dbContext.Loans.FirstOrDefaultAsync(l => l.id == addFineRequestDto.loanId);
+            var loan = await dbContext.Loans.FirstOrDefaultAsync(l => l.id == addFineRequestDto.loanId, cancellationToken);
 
             if (loan == null)
             {
@@ -35,33 +33,32 @@ namespace Library.Api.Repositories
                 Loan = loan,
             };
 
-            await dbContext.Fines.AddAsync(fine);
+            await dbContext.Fines.AddAsync(fine, cancellationToken);
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return fine;
         }
 
-        public async Task<List<Fine>> getAllAsync()
+        public async Task<List<Fine>> getAllAsync(CancellationToken cancellationToken = default)
         {
-            return await dbContext.Fines.ToListAsync();
+            return await dbContext.Fines.ToListAsync(cancellationToken);
         }
 
-        public async Task<Fine?> getByIdAsync(Guid id)
+        public async Task<Fine?> getByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await dbContext.Fines.FirstOrDefaultAsync(x => x.id == id);
+            return await dbContext.Fines.FirstOrDefaultAsync(x => x.id == id, cancellationToken);
         }
 
-        public async Task<List<Fine?>> processOverdueLoansAsync(Guid id)
+        public async Task<List<Fine?>> processOverdueLoansAsync(Guid id, CancellationToken cancellationToken = default)
         {
-
             var loansToCheck = await dbContext.Loans
-                .Where(l => l.userId == id).ToListAsync();
+                .Where(l => l.userId == id).ToListAsync(cancellationToken);
 
             var processedFines = new List<Fine>();
 
             foreach (var loan in loansToCheck)
             {
-                var searchForFine = await dbContext.Fines.FirstOrDefaultAsync(f => f.loanId == loan.id);
+                var searchForFine = await dbContext.Fines.FirstOrDefaultAsync(f => f.loanId == loan.id, cancellationToken);
 
                 if (searchForFine == null && loan.status == LoanStatus.overdue && loan.dueDate < DateOnly.FromDateTime(DateTime.Today))
                 {
@@ -77,10 +74,10 @@ namespace Library.Api.Repositories
                             Loan = loan,
                         };
                         processedFines.Add(fine);
-                        await dbContext.Fines.AddAsync(fine);
+                        await dbContext.Fines.AddAsync(fine, cancellationToken);
                     }
                 }
-                else if (searchForFine != null) 
+                else if (searchForFine != null)
                 {
                     var daysOverdue = DateOnly.FromDateTime(DateTime.Today).DayNumber - loan.dueDate.DayNumber;
                     var fullWeeksOverdue = daysOverdue / 7;
@@ -94,8 +91,19 @@ namespace Library.Api.Repositories
                 }
             }
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return processedFines;
+        }
+
+        public async Task<List<Fine>> getByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await dbContext.Fines
+                .Include(f => f.Loan)
+                    .ThenInclude(l => l.BookCopy)
+                        .ThenInclude(bc => bc!.Book)
+                .Where(f => f.userId == userId)
+                .OrderByDescending(f => f.fineDate)
+                .ToListAsync(cancellationToken);
         }
     }
 }

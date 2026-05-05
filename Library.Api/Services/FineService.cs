@@ -17,17 +17,17 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<FineDto>> GetAllAsync()
+        public async Task<List<FineDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all fines");
-            var fines = await _fineRepository.getAllAsync();
+            var fines = await _fineRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} fines", fines.Count);
             return _mapper.Map<List<FineDto>>(fines);
         }
 
-        public async Task<ServiceResult<FineDto>> GetByIdAsync(Guid id)
+        public async Task<ServiceResult<FineDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var fine = await _fineRepository.getByIdAsync(id);
+            var fine = await _fineRepository.getByIdAsync(id, cancellationToken);
             if (fine == null)
             {
                 _logger.LogWarning("Fine {Id} not found", id);
@@ -36,10 +36,10 @@ namespace Library.Api.Services
             return ServiceResult<FineDto>.Ok(_mapper.Map<FineDto>(fine));
         }
 
-        public async Task<ServiceResult<FineDto>> AddFineAsync(AddFineRequestDto dto)
+        public async Task<ServiceResult<FineDto>> AddFineAsync(AddFineRequestDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Adding fine for loan {LoanId}", dto.loanId);
-            var fine = await _fineRepository.addFineAsync(dto);
+            var fine = await _fineRepository.addFineAsync(dto, cancellationToken);
             if (fine == null)
             {
                 _logger.LogWarning("Loan {LoanId} not found when adding fine", dto.loanId);
@@ -49,10 +49,10 @@ namespace Library.Api.Services
             return ServiceResult<FineDto>.Ok(_mapper.Map<FineDto>(fine));
         }
 
-        public async Task<ServiceResult<List<FineDto>>> ProcessOverdueLoansAsync(Guid userId)
+        public async Task<ServiceResult<List<FineDto>>> ProcessOverdueLoansAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Processing overdue loans for user {UserId}", userId);
-            var fines = await _fineRepository.processOverdueLoansAsync(userId);
+            var fines = await _fineRepository.processOverdueLoansAsync(userId, cancellationToken);
             if (fines == null)
             {
                 _logger.LogWarning("Failed to process overdue loans for user {UserId}", userId);
@@ -60,6 +60,13 @@ namespace Library.Api.Services
             }
             _logger.LogInformation("Processed {Count} fine(s) for user {UserId}", fines.Count, userId);
             return ServiceResult<List<FineDto>>.Ok(_mapper.Map<List<FineDto>>(fines));
+        }
+
+        public async Task<List<FineDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Retrieving fines for user {UserId}", userId);
+            var fines = await _fineRepository.getByUserIdAsync(userId, cancellationToken);
+            return _mapper.Map<List<FineDto>>(fines);
         }
     }
 }

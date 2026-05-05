@@ -3,6 +3,7 @@
 @using LibraryBlazor.Features.Loans.Components
 @using LibraryBlazor.Shared.Models
 @using LibraryBlazor.Http
+@implements IDisposable
 @inject LibraryBlazor.Features.Loans.Services.LoanApi LoanApi
 
 <PageTitle>Loans</PageTitle>
@@ -35,6 +36,8 @@
                   OnConfirm="SaveAsync" />
 
 @code {
+    private readonly CancellationTokenSource _cts = new();
+
     private List<LoanRowVm> Loans = new();
     private bool _showModal;
     private bool _saving;
@@ -49,9 +52,11 @@
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
+    public void Dispose() => _cts.Cancel();
+
     private async Task ReloadAsync()
     {
-        var result = await LoanApi.GetLoansAsync();
+        var result = await LoanApi.GetLoansAsync(_cts.Token);
         if (!result.Success)
         {
             Loans = new();
@@ -90,7 +95,7 @@
         try
         {
             var result = await LoanApi.ExtendLoanAsync(_selectedLoan.Id,
-                new ExtendLoanRequestDto(_newDueDate));
+                new ExtendLoanRequestDto(_newDueDate), _cts.Token);
 
             if (!result.Success)
             {

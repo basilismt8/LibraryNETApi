@@ -18,17 +18,17 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<BookDto>> GetAllAsync()
+        public async Task<List<BookDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all books");
-            var books = await _bookRepository.getAllAsync();
+            var books = await _bookRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} books", books.Count);
             return _mapper.Map<List<BookDto>>(books);
         }
 
-        public async Task<ServiceResult<BookDto>> GetByIdAsync(Guid id)
+        public async Task<ServiceResult<BookDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var book = await _bookRepository.getByIdAsync(id);
+            var book = await _bookRepository.getByIdAsync(id, cancellationToken);
             if (book == null)
             {
                 _logger.LogWarning("Book {Id} not found", id);
@@ -37,20 +37,20 @@ namespace Library.Api.Services
             return ServiceResult<BookDto>.Ok(_mapper.Map<BookDto>(book));
         }
 
-        public async Task<ServiceResult<BookDto>> CreateAsync(CreateBookRequestDto dto)
+        public async Task<ServiceResult<BookDto>> CreateAsync(CreateBookRequestDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Creating book '{Title}'", dto.title);
             var bookDomain = _mapper.Map<Book>(dto);
-            var created = await _bookRepository.CreateAsync(bookDomain);
+            var created = await _bookRepository.CreateAsync(bookDomain, cancellationToken);
             _logger.LogInformation("Book '{Title}' created with id {Id}", created.title, created.id);
             return ServiceResult<BookDto>.Ok(_mapper.Map<BookDto>(created));
         }
 
-        public async Task<ServiceResult<BookDto>> UpdateAsync(string id, UpdateBookRequestDto dto)
+        public async Task<ServiceResult<BookDto>> UpdateAsync(string id, UpdateBookRequestDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Updating book {Id}", id);
             var bookDomain = _mapper.Map<Book>(dto);
-            var updated = await _bookRepository.UpdateAsync(id, bookDomain);
+            var updated = await _bookRepository.UpdateAsync(id, bookDomain, cancellationToken);
             if (updated == null)
             {
                 _logger.LogWarning("Book {Id} not found for update", id);
@@ -59,10 +59,10 @@ namespace Library.Api.Services
             return ServiceResult<BookDto>.Ok(_mapper.Map<BookDto>(updated));
         }
 
-        public async Task<ServiceResult<BookDto>> DeleteAsync(Guid id)
+        public async Task<ServiceResult<BookDto>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Deleting book {Id}", id);
-            var deleted = await _bookRepository.DeleteAsync(id);
+            var deleted = await _bookRepository.DeleteAsync(id, cancellationToken);
             if (deleted == null)
             {
                 _logger.LogWarning("Book {Id} not found or has active loans — delete aborted", id);
@@ -72,10 +72,10 @@ namespace Library.Api.Services
             return ServiceResult<BookDto>.Ok(_mapper.Map<BookDto>(deleted));
         }
 
-        public async Task<ServiceResult<BookDto>> ReturnBookAsync(Guid userId, Guid bookCopyId)
+        public async Task<ServiceResult<BookDto>> ReturnBookAsync(Guid userId, Guid bookCopyId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("User {UserId} returning book copy {BookCopyId}", userId, bookCopyId);
-            var returned = await _bookRepository.ReturnBookAsync(userId, bookCopyId);
+            var returned = await _bookRepository.ReturnBookAsync(userId, bookCopyId, cancellationToken);
             if (returned == null)
             {
                 _logger.LogWarning("Return failed for copy {BookCopyId} by user {UserId}", bookCopyId, userId);

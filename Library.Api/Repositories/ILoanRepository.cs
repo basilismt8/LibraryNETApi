@@ -5,11 +5,11 @@ namespace Library.Api.Repositories
 {
     public interface ILoanRepository
     {
-        Task<List<Loan>> getAllAsync();
-        Task<List<Loan>> getAllLoansByUserIdAsync(Guid userId);
-        Task<Loan?> getByIdAsync(Guid id);
-        Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto);
-        Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan);
-        Task<List<Loan>> GetLoansByUserIdAsync(Guid userId);
+        Task<List<Loan>> getAllAsync(CancellationToken cancellationToken = default);
+        Task<List<Loan>> getAllLoansByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<Loan?> getByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto, CancellationToken cancellationToken = default);
+        Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan, CancellationToken cancellationToken = default);
+        Task<List<Loan>> GetLoansByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     }
 }

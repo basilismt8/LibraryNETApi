@@ -1,5 +1,55 @@
 ﻿
 
+/* ─── Page header ─── */
+.page-header {
+    padding: 4px 0 0;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c1d16;
+    letter-spacing: 0.01em;
+    margin: 0;
+}
+
+/* ─── Custom tabs (MyLoans / Fines) ─── */
+.myloans-tabs {
+    gap: 6px;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0 !important;
+}
+
+.myloans-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2c1d16;
+    border: 1px solid rgba(176, 122, 74, 0.20);
+    border-radius: 10px 10px 0 0;
+    color: #a08060;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    margin-bottom: 0;
+}
+
+.myloans-tab-btn:hover:not(.active) {
+    background: #3a2a1f;
+    color: #ddd0c3;
+    border-color: rgba(176, 122, 74, 0.35);
+}
+
+.myloans-tab-btn.active {
+    background: #b07a4a;
+    border-color: #b07a4a;
+    color: #fff;
+    font-weight: 600;
+}
+
 /* ─── Column widths ─── */
 .table-card .col-status {
     width: 110px;

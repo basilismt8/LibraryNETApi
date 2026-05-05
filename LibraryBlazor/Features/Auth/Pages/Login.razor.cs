@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Components;
 
 namespace LibraryBlazor.Features.Auth.Pages;
 
-public partial class Login
+public partial class Login : IDisposable
 {
     [Inject] public AuthApi AuthApi { get; set; } = default!;
     [Inject] public JwtAuthStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] public NavigationManager Nav { get; set; } = default!;
     [Inject] public TokenService TokenService { get; set; } = default!;
+
+    private readonly CancellationTokenSource _cts = new();
 
     protected LoginVm Model { get; } = new();
     protected bool _saving;
@@ -46,7 +48,7 @@ public partial class Login
                 return;
             }
 
-            var result = await AuthApi.LoginAsync(new LoginRequestDto(Model.Email.Trim(), Model.Password));
+            var result = await AuthApi.LoginAsync(new LoginRequestDto(Model.Email.Trim(), Model.Password), _cts.Token);
             if (!result.Success)
             {
                 _error = result.Message ?? "Invalid login attempt";
@@ -77,4 +79,6 @@ public partial class Login
             _saving = false;
         }
     }
+
+    public void Dispose() => _cts.Cancel();
 }

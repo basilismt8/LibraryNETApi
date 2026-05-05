@@ -14,31 +14,31 @@ namespace Library.Api.Repositories
             this.dbContext = dbContext;
         }
 
-        public async Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto)
+        public async Task<List<Loan>?> CreateAsync(Guid userId, CreateLoanRequestDto createLoanRequestDto, CancellationToken cancellationToken = default)
         {
-            using var transaction = await dbContext.Database.BeginTransactionAsync();
+            using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var createdLoans = new List<Loan>();
 
                 foreach (var bookId in createLoanRequestDto.bookIds)
                 {
-                    var book = await dbContext.Books.FirstOrDefaultAsync(b => b.id == bookId);
+                    var book = await dbContext.Books.FirstOrDefaultAsync(b => b.id == bookId, cancellationToken);
 
                     if (book == null || book.copiesAvailable <= 0)
                     {
                         // Cancel everything if even one book is invalid
-                        await transaction.RollbackAsync();
+                        await transaction.RollbackAsync(cancellationToken);
                         return null;
                     }
 
                     // Find the first available BookCopy for this book
                     var availableCopy = await dbContext.BookCopies
-                        .FirstOrDefaultAsync(bc => bc.bookId == bookId && bc.status == CopyStatus.Available);
+                        .FirstOrDefaultAsync(bc => bc.bookId == bookId && bc.status == CopyStatus.Available, cancellationToken);
 
                     if (availableCopy == null)
                     {
-                        await transaction.RollbackAsync();
+                        await transaction.RollbackAsync(cancellationToken);
                         return null;
                     }
 
@@ -56,7 +56,7 @@ namespace Library.Api.Repositories
                         status = LoanStatus.borrowed
                     };
 
-                    await dbContext.Loans.AddAsync(loan);
+                    await dbContext.Loans.AddAsync(loan, cancellationToken);
 
                     book.copiesAvailable -= 1;
                     dbContext.Books.Update(book);
@@ -64,20 +64,20 @@ namespace Library.Api.Repositories
                     createdLoans.Add(loan);
                 }
 
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
                 return createdLoans;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
 
-        public async Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan)
+        public async Task<Loan>? extendLoanPeriodDomainAsync(Guid id, Loan loan, CancellationToken cancellationToken = default)
         {
-            var existingLoan = await dbContext.Loans.FirstOrDefaultAsync(x => x.id == id);
+            var existingLoan = await dbContext.Loans.FirstOrDefaultAsync(x => x.id == id, cancellationToken);
             if (existingLoan == null)
             {
                 return null;
@@ -87,42 +87,42 @@ namespace Library.Api.Repositories
 
             dbContext.Loans.Update(existingLoan);
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return existingLoan;
         }
 
-        public async Task<List<Loan>> getAllAsync()
+        public async Task<List<Loan>> getAllAsync(CancellationToken cancellationToken = default)
         {
             return await dbContext.Loans
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc!.Book)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Loan>> getAllLoansByUserIdAsync(Guid userId)
+        public async Task<List<Loan>> getAllLoansByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await dbContext.Loans
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc!.Book)
                 .Where(x => x.userId == userId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Loan?> getByIdAsync(Guid id)
+        public async Task<Loan?> getByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await dbContext.Loans
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc!.Book)
-                .FirstOrDefaultAsync(x => x.id == id);
+                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
         }
 
-        public async Task<List<Loan>> GetLoansByUserIdAsync(Guid userId)
+        public async Task<List<Loan>> GetLoansByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await dbContext.Loans
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc!.Book)
                 .Where(l => l.userId == userId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
     }
 }

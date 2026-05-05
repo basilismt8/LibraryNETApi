@@ -22,18 +22,18 @@ namespace Library.Api.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             _logger.LogInformation("GET /api/books called by {User}", User.Identity?.Name);
-            var books = await _bookService.GetAllAsync();
+            var books = await _bookService.GetAllAsync(cancellationToken);
             return Ok(books);
         }
 
         [HttpGet("{id:Guid}")]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
-            var result = await _bookService.GetByIdAsync(id);
+            var result = await _bookService.GetByIdAsync(id, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
@@ -42,9 +42,9 @@ namespace Library.Api.Controllers
         [HttpPost]
         [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Create([FromBody] CreateBookRequestDto createBookRequestDto)
+        public async Task<IActionResult> Create([FromBody] CreateBookRequestDto createBookRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _bookService.CreateAsync(createBookRequestDto);
+            var result = await _bookService.CreateAsync(createBookRequestDto, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return CreatedAtAction(nameof(GetById), new { id = result.Data!.id }, result.Data);
@@ -53,9 +53,9 @@ namespace Library.Api.Controllers
         [HttpPut("{id}")]
         [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto)
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateBookRequestDto updateBookRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _bookService.UpdateAsync(id, updateBookRequestDto);
+            var result = await _bookService.UpdateAsync(id, updateBookRequestDto, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
@@ -63,9 +63,9 @@ namespace Library.Api.Controllers
 
         [HttpDelete("{id:Guid}")]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            var result = await _bookService.DeleteAsync(id);
+            var result = await _bookService.DeleteAsync(id, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
@@ -74,9 +74,9 @@ namespace Library.Api.Controllers
         [HttpPut("returnBook")]
         [validateModel]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> ReturnBook([FromBody] ReturnBooksRequesDto returnBooksRequest)
+        public async Task<IActionResult> ReturnBook([FromBody] ReturnBooksRequesDto returnBooksRequest, CancellationToken cancellationToken)
         {
-            var result = await _bookService.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId);
+            var result = await _bookService.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);

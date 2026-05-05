@@ -22,30 +22,30 @@ namespace Library.Api.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             _logger.LogInformation("GET /api/loans called by {User}", User.Identity?.Name);
-            var loans = await _loanService.GetAllAsync();
+            var loans = await _loanService.GetAllAsync(cancellationToken);
             return Ok(loans);
         }
 
         [HttpGet("user/current")]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> GetCurrentUserLoans()
+        public async Task<IActionResult> GetCurrentUserLoans(CancellationToken cancellationToken)
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-            var loans = await _loanService.GetByUserIdAsync(userId);
+            var loans = await _loanService.GetByUserIdAsync(userId, cancellationToken);
             return Ok(loans);
         }
 
         [HttpGet("{id:Guid}")]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
-            var result = await _loanService.GetByIdAsync(id);
+            var result = await _loanService.GetByIdAsync(id, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
@@ -54,13 +54,13 @@ namespace Library.Api.Controllers
         [HttpPost]
         [validateModel]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> Create([FromBody] CreateLoanRequestDto createLoanRequestDto)
+        public async Task<IActionResult> Create([FromBody] CreateLoanRequestDto createLoanRequestDto, CancellationToken cancellationToken)
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-            var result = await _loanService.CreateAsync(userId, createLoanRequestDto);
+            var result = await _loanService.CreateAsync(userId, createLoanRequestDto, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
@@ -69,9 +69,9 @@ namespace Library.Api.Controllers
         [HttpPut("{id:Guid}/extend")]
         [validateModel]
         [Authorize(Roles = "Librarian,Member")]
-        public async Task<IActionResult> ExtendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto)
+        public async Task<IActionResult> ExtendLoanPeriod([FromRoute] Guid id, [FromBody] ExtendLoanRequestDto extendLoanRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _loanService.ExtendAsync(id, extendLoanRequestDto);
+            var result = await _loanService.ExtendAsync(id, extendLoanRequestDto, cancellationToken);
             if (!result.Success)
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
