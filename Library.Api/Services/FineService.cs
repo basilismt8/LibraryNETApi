@@ -68,5 +68,18 @@ namespace Library.Api.Services
             var fines = await _fineRepository.getByUserIdAsync(userId, cancellationToken);
             return _mapper.Map<List<FineDto>>(fines);
         }
+
+        public async Task<ServiceResult<FineDto>> PayFineAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Paying fine {FineId}", id);
+            var fine = await _fineRepository.payFineAsync(id, cancellationToken);
+            if (fine == null)
+            {
+                _logger.LogWarning("Fine {FineId} not found or already paid", id);
+                return ServiceResult<FineDto>.NotFound($"Fine with id '{id}' was not found or is already paid.");
+            }
+            _logger.LogInformation("Fine {FineId} marked as paid", id);
+            return ServiceResult<FineDto>.Ok(_mapper.Map<FineDto>(fine));
+        }
     }
 }

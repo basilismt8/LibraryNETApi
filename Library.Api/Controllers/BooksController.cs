@@ -73,7 +73,7 @@ namespace Library.Api.Controllers
 
         [HttpPut("returnBook")]
         [validateModel]
-        [Authorize(Roles = "Librarian")]
+        [Authorize(Roles = "Librarian,Member")]
         public async Task<IActionResult> ReturnBook([FromBody] ReturnBooksRequesDto returnBooksRequest, CancellationToken cancellationToken)
         {
             var result = await _bookService.ReturnBookAsync(returnBooksRequest.UserId, returnBooksRequest.BookCopyId, cancellationToken);

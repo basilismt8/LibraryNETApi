@@ -24,5 +24,15 @@ namespace LibraryBlazor.Features.MyLoans.Services
             {
                 dueDate = body.DueDate
             }, cancellationToken);
+
+        public Task<ApiResult> ReturnBookAsync(Guid userId, Guid bookCopyId, CancellationToken cancellationToken = default)
+            => _api.PutAsync("api/books/returnBook", new
+            {
+                userId,
+                bookCopyId
+            }, cancellationToken);
+
+        public Task<ApiResult> PayFineAsync(Guid fineId, CancellationToken cancellationToken = default)
+            => _api.PatchAsync($"api/fines/{fineId}/pay", cancellationToken);
     }
 }

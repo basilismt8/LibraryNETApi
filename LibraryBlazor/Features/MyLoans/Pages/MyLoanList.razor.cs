@@ -42,11 +42,37 @@ public partial class MyLoanList : IDisposable
         Loans = (result.Data ?? Array.Empty<MyLoanDto>())
             .Select(b => new MyLoanRowVm(b))
             .ToList();
+    }
 
+    private async Task LoadFinesAsync()
+    {
         var finesResult = await MyLoansApi.GetMyFinesAsync(_cts.Token);
         Fines = finesResult.Success
             ? (finesResult.Data ?? Array.Empty<MyFineDto>()).Select(f => new MyFineRowVm(f)).ToList()
             : new();
+    }
+
+    private async Task SelectFinesTab()
+    {
+        _activeTab = "fines";
+        await LoadFinesAsync();
+    }
+
+    private async Task ReturnBookAsync(MyLoanRowVm loan)
+    {
+        var result = await MyLoansApi.ReturnBookAsync(loan.UserId, loan.BookCopyId, _cts.Token);
+        if (result.Success)
+            await ReloadAsync();
+    }
+
+    private async Task PayFineAsync(MyFineRowVm fine)
+    {
+        var result = await MyLoansApi.PayFineAsync(fine.Id, _cts.Token);
+        if (result.Success)
+        {
+            await LoadFinesAsync();
+            await ReloadAsync();
+        }
     }
 
     private Task OpenExtendLoan(MyLoanRowVm loan)

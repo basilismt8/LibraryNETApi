@@ -16,6 +16,31 @@ public partial class MyFinesTable
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
 
+    [Parameter] public EventCallback<MyFineRowVm> OnPayFine { get; set; }
+
+    private MyFineRowVm? _fineToPay;
+    private bool _showPayConfirm;
+
+    private void OpenPayConfirm(MyFineRowVm fine)
+    {
+        _fineToPay = fine;
+        _showPayConfirm = true;
+    }
+
+    private void CancelPay()
+    {
+        _fineToPay = null;
+        _showPayConfirm = false;
+    }
+
+    private async Task ConfirmPayAsync()
+    {
+        if (_fineToPay is null) return;
+        _showPayConfirm = false;
+        await OnPayFine.InvokeAsync(_fineToPay);
+        _fineToPay = null;
+    }
+
     private IEnumerable<MyFineRowVm> FilteredItems =>
         Items.Where(f => string.IsNullOrWhiteSpace(FilterTitle) ||
                          f.BookTitle.Contains(FilterTitle, StringComparison.OrdinalIgnoreCase));

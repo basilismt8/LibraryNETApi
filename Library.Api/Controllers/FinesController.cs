@@ -71,5 +71,15 @@ namespace Library.Api.Controllers
                 return StatusCode(result.StatusCode, result.Error);
             return Ok(result.Data);
         }
+
+        [HttpPatch("{id:Guid}/pay")]
+        [Authorize(Roles = "Librarian,Member")]
+        public async Task<IActionResult> PayFine([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var result = await _fineService.PayFineAsync(id, cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
+        }
     }
 }

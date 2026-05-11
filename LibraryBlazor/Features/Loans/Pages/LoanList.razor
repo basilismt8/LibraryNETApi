@@ -19,7 +19,8 @@
             CurrentPageChanged="@(v => CurrentPage = v)"
             PageSize="@PageSize"
             PageSizeChanged="@(v => PageSize = v)"
-            OnExtendLoan="OpenExtendLoan" />
+            OnExtendLoan="OpenExtendLoan"
+            OnReturnBook="ReturnBookAsync" />
 
 <DueDateModal IsOpen="@_showModal"
                   IsOpenChanged="@(v => _showModal = v)"
@@ -76,6 +77,13 @@
         _modalError = null;
         _showModal = true;
         return Task.CompletedTask;
+    }
+
+    private async Task ReturnBookAsync(LoanRowVm loan)
+    {
+        var result = await LoanApi.ReturnBookAsync(loan.UserId, loan.BookCopyId, _cts.Token);
+        if (result.Success)
+            await ReloadAsync();
     }
 
     private void CloseModal()

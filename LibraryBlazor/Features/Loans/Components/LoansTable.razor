@@ -29,11 +29,13 @@
                     <th>Due Date</th>
                     <th class="col-status">Status</th>
                     <th class="col-action">Extend Loan</th>
+                    <th class="col-action">Return</th>
                 </tr>
                 <tr class="filters">
                     <th><input class="form-control form-control-sm" placeholder="Filter Id" value="@FilterId" @oninput="OnFilterIdInput" /></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Book Copy Id" value="@FilterBookCopyId" @oninput="OnFilterBookCopyIdInput" /></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Title" value="@FilterTitle" @oninput="OnFilterTitleInput" /></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -56,6 +58,14 @@
                                     @onclick:stopPropagation="true"
                                     disabled="@(!IsLoanExtendable(loan))">
                                 <i class="bi bi-clock-history"></i>
+                            </button>
+                        </td>
+                        <td class="action-cell">
+                            <button type="button" class="btn btn-return-loan" title="Return book"
+                                    @onclick="() => OpenReturnConfirm(loan)"
+                                    @onclick:stopPropagation="true"
+                                    disabled="@(!IsLoanExtendable(loan))">
+                                <i class="bi bi-box-arrow-in-left"></i>
                             </button>
                         </td>
                     </tr>
@@ -86,3 +96,13 @@
         </div>
     </div>
 </div>
+
+<ConfirmationModal IsOpen="@_showReturnConfirm"
+                   IsOpenChanged="@(v => _showReturnConfirm = v)"
+                   Title="Return Book"
+                   Message="@($"Are you sure you want to return the book \"{_loanToReturn?.BookTitle}\"?")"
+                   IsWarning="false"
+                   ConfirmText="Return"
+                   CancelText="Cancel"
+                   OnCancel="CancelReturn"
+                   OnConfirm="ConfirmReturnAsync" />

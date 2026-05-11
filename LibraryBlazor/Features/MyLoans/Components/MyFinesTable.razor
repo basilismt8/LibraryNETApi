@@ -1,4 +1,5 @@
 @using LibraryBlazor.Features.MyLoans.Models
+@using LibraryBlazor.Components
 
 <div class="table-card">
     <div class="d-flex justify-content-between align-items-center p-2">
@@ -13,9 +14,11 @@
                     <th>Fine Date</th>
                     <th>Amount</th>
                     <th class="col-status">Status</th>
+                    <th class="col-action">Pay</th>
                 </tr>
                 <tr class="filters">
                     <th><input class="form-control form-control-sm" placeholder="Filter Title" value="@FilterTitle" @oninput="OnFilterTitleInput" /></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -29,6 +32,14 @@
                         <td>@fine.FineDate</td>
                         <td>$@fine.Amount.ToString("0.00")</td>
                         <td><span class="status-badge @(fine.Paid ? "badge-returned" : "badge-overdue")">@(fine.Paid ? "Paid" : "Unpaid")</span></td>
+                        <td class="action-cell">
+                            <button type="button" class="btn btn-pay-fine" title="Pay fine"
+                                    @onclick="() => OpenPayConfirm(fine)"
+                                    @onclick:stopPropagation="true"
+                                    disabled="@fine.Paid">
+                                <i class="bi bi-cash-coin"></i>
+                            </button>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -57,3 +68,13 @@
         </div>
     </div>
 </div>
+
+<ConfirmationModal IsOpen="@_showPayConfirm"
+                   IsOpenChanged="@(v => _showPayConfirm = v)"
+                   Title="Pay Fine"
+                   Message="@($"Are you sure you want to pay this fine of ${_fineToPay?.Amount.ToString("0.00")}?")"
+                   IsWarning="false"
+                   ConfirmText="Pay"
+                   CancelText="Cancel"
+                   OnCancel="CancelPay"
+                   OnConfirm="ConfirmPayAsync" />

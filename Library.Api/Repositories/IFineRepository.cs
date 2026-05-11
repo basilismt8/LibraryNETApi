@@ -10,5 +10,6 @@ namespace Library.Api.Repositories
         Task<Fine> addFineAsync(AddFineRequestDto addFineRequestDto, CancellationToken cancellationToken = default);
         Task<List<Fine>> processOverdueLoansAsync(Guid id, CancellationToken cancellationToken = default);
         Task<List<Fine>> getByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<Fine?> payFineAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

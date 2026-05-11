@@ -120,6 +120,17 @@ public sealed class ApiClient
         return await EnsureSuccessAsync(response).ConfigureAwait(false);
     }
 
+    public async Task<ApiResult> PatchAsync(string relativeUrl, CancellationToken cancellationToken = default)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Patch, relativeUrl)
+        {
+            Content = JsonContent.Create(new { })
+        };
+
+        using var response = await _http.SendAsync(request, cancellationToken);
+        return await EnsureSuccessAsync(response);
+    }
+
     private async Task<ApiResult> EnsureSuccessAsync(HttpResponseMessage response)
     {
         if (response.IsSuccessStatusCode)

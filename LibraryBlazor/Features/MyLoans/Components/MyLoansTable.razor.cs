@@ -20,6 +20,30 @@ public partial class MyLoansTable
     [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
 
     [Parameter] public EventCallback<MyLoanRowVm> OnExtendLoan { get; set; }
+    [Parameter] public EventCallback<MyLoanRowVm> OnReturnBook { get; set; }
+
+    private MyLoanRowVm? _loanToReturn;
+    private bool _showReturnConfirm;
+
+    private void OpenReturnConfirm(MyLoanRowVm loan)
+    {
+        _loanToReturn = loan;
+        _showReturnConfirm = true;
+    }
+
+    private void CancelReturn()
+    {
+        _loanToReturn = null;
+        _showReturnConfirm = false;
+    }
+
+    private async Task ConfirmReturnAsync()
+    {
+        if (_loanToReturn is null) return;
+        _showReturnConfirm = false;
+        await OnReturnBook.InvokeAsync(_loanToReturn);
+        _loanToReturn = null;
+    }
 
     private IEnumerable<MyLoanRowVm> FilteredItems =>
        Items.Where(l =>

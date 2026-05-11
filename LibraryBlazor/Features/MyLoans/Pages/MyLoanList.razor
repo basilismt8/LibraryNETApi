@@ -17,7 +17,7 @@
         </button>
     </li>
     <li class="nav-item">
-        <button class="myloans-tab-btn @(_activeTab == "fines" ? "active" : "")" @onclick='() => _activeTab = "fines"'>
+        <button class="myloans-tab-btn @(_activeTab == "fines" ? "active" : "")" @onclick="SelectFinesTab">
             My Fines
             @if (Fines.Any(f => !f.Paid))
             {
@@ -38,7 +38,8 @@
                 CurrentPageChanged="@(v => CurrentPage = v)"
                 PageSize="@PageSize"
                 PageSizeChanged="@(v => PageSize = v)"
-                OnExtendLoan="OpenExtendLoan" />
+                OnExtendLoan="OpenExtendLoan"
+                OnReturnBook="ReturnBookAsync" />
 }
 else
 {
@@ -48,7 +49,8 @@ else
                   CurrentPage="@FinesCurrentPage"
                   CurrentPageChanged="@(v => FinesCurrentPage = v)"
                   PageSize="@FinesPageSize"
-                  PageSizeChanged="@(v => FinesPageSize = v)" />
+                  PageSizeChanged="@(v => FinesPageSize = v)"
+                  OnPayFine="PayFineAsync" />
 }
 
 <DueDateModal IsOpen="@_showModal"

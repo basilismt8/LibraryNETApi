@@ -58,36 +58,44 @@ namespace Library.Api.Repositories
 
             foreach (var loan in loansToCheck)
             {
+                var isActuallyOverdue = loan.dueDate < DateOnly.FromDateTime(DateTime.Today)
+                    && (loan.status == LoanStatus.borrowed || loan.status == LoanStatus.overdue);
+
+                if (!isActuallyOverdue)
+                    continue;
+
+                // Mark the loan as overdue if it isn't already
+                if (loan.status != LoanStatus.overdue)
+                {
+                    loan.status = LoanStatus.overdue;
+                    dbContext.Loans.Update(loan);
+                }
+
                 var searchForFine = await dbContext.Fines.FirstOrDefaultAsync(f => f.loanId == loan.id, cancellationToken);
 
-                if (searchForFine == null && loan.status == LoanStatus.overdue && loan.dueDate < DateOnly.FromDateTime(DateTime.Today))
+                if (searchForFine == null)
                 {
-                    if (loan.status == LoanStatus.overdue && searchForFine == null)
+                    // No fine yet — create one with the base amount
+                    var fine = new Fine
                     {
-                        // Create a fine for the overdue loan
-                        var fine = new Fine
-                        {
-                            id = Guid.NewGuid(),
-                            userId = loan.userId,
-                            loanId = loan.id,
-                            amount = 5.0M, // Example fine amount
-                            Loan = loan,
-                        };
-                        processedFines.Add(fine);
-                        await dbContext.Fines.AddAsync(fine, cancellationToken);
-                    }
+                        id = Guid.NewGuid(),
+                        userId = loan.userId,
+                        loanId = loan.id,
+                        amount = 5.0M,
+                        Loan = loan,
+                    };
+                    processedFines.Add(fine);
+                    await dbContext.Fines.AddAsync(fine, cancellationToken);
                 }
-                else if (searchForFine != null)
+                else
                 {
+                    // Fine already exists — update to correct total based on weeks overdue
                     var daysOverdue = DateOnly.FromDateTime(DateTime.Today).DayNumber - loan.dueDate.DayNumber;
                     var fullWeeksOverdue = daysOverdue / 7;
 
-                    if (fullWeeksOverdue > 0)
-                    {
-                        searchForFine.amount += fullWeeksOverdue * 1.0M; // Add 1.0 for each full overdue week
-                        processedFines.Add(searchForFine);
-                        dbContext.Fines.Update(searchForFine);
-                    }
+                    searchForFine.amount = 5.0M + (fullWeeksOverdue * 1.0M);
+                    processedFines.Add(searchForFine);
+                    dbContext.Fines.Update(searchForFine);
                 }
             }
 
@@ -104,6 +112,60 @@ namespace Library.Api.Repositories
                 .Where(f => f.userId == userId)
                 .OrderByDescending(f => f.fineDate)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<Fine?> payFineAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var fine = await dbContext.Fines
+                    .Include(f => f.Loan)
+                        .ThenInclude(l => l.BookCopy)
+                            .ThenInclude(bc => bc!.Book)
+                    .FirstOrDefaultAsync(f => f.id == id, cancellationToken);
+
+                if (fine == null || fine.paid)
+                    return null;
+
+                // Mark the fine as paid
+                fine.paid = true;
+                dbContext.Fines.Update(fine);
+
+                var loan = fine.Loan;
+
+                // Mark the overdue loan as returned
+                if (loan.status == LoanStatus.overdue || loan.status == LoanStatus.borrowed)
+                {
+                    loan.status = LoanStatus.returned;
+                    dbContext.Loans.Update(loan);
+                }
+
+                // Free the book copy and restore available count
+                var bookCopy = loan.BookCopy;
+                if (bookCopy != null && bookCopy.status == CopyStatus.OnLoan)
+                {
+                    bookCopy.status = CopyStatus.Available;
+                    dbContext.BookCopies.Update(bookCopy);
+
+                    var book = bookCopy.Book;
+                    if (book != null)
+                    {
+                        book.copiesAvailable += 1;
+                        dbContext.Books.Update(book);
+                    }
+                }
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return fine;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }
