@@ -20,10 +20,6 @@ namespace Library.Api.Repositories
             return loanHistory;
         }
 
-        /// <summary>
-        /// Finds the most recent open history record (no returnDate) for this copy+user
-        /// and stamps the return date as today.
-        /// </summary>
         public async Task<LoanHistory?> SetReturnDateAsync(Guid bookCopyId, Guid userId, CancellationToken cancellationToken = default)
         {
             var record = await dbContext.LoanHistories
