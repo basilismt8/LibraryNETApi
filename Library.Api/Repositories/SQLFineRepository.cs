@@ -9,7 +9,7 @@ namespace Library.Api.Repositories
     {
         private readonly LibraryDbContext dbContext;
 
-        public SQLFineRepository(LibraryDbContext dbContext )
+        public SQLFineRepository(LibraryDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

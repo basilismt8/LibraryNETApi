@@ -21,6 +21,7 @@ namespace Library.Api.Mappings
             CreateMap<AddFineRequestDto, Fine>().ReverseMap();
             CreateMap<CreateLoanRequestDto, Loan>().ReverseMap();
             CreateMap<ExtendLoanRequestDto, Loan>().ReverseMap();
+            CreateMap<LoanHistory, LoanHistoryDto>().ReverseMap();
         }
     }
 }

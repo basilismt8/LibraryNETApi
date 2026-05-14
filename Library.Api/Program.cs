@@ -75,12 +75,14 @@ builder.Services.AddDbContext<LibraryAuthDbContext>(options =>
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
 builder.Services.AddScoped<IFineRepository, SQLFineRepository>();
 builder.Services.AddScoped<ILoanRepository, SQLLoanRepository>();
+builder.Services.AddScoped<ILoanHistoryRepository, SQLLoanHistoryRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IEmailServiceInterface, EmailService>();
 
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IFineService, FineService>();
+builder.Services.AddScoped<ILoanHistoryService, LoanHistoryService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

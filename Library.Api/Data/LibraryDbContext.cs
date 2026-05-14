@@ -14,6 +14,7 @@ namespace Library.Api.Data
         public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Fine> Fines { get; set; }
+        public DbSet<LoanHistory> LoanHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -100,6 +101,29 @@ namespace Library.Api.Data
                 .HasForeignKey<Fine>(f => f.loanId) // Fine has FK loanId
                 .IsRequired() // Ensures a fine must be linked to a Loan
                 .OnDelete(DeleteBehavior.Cascade); // If Loan is deleted, delete Fine too
+
+            // LoanHistory:BookCopy N:1
+            modelBuilder.Entity<LoanHistory>()
+                .HasOne<BookCopy>()
+                .WithMany()
+                .HasForeignKey(lh => lh.bookCopyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LoanHistory>()
+                .HasIndex(lh => lh.bookCopyId);
+
+            modelBuilder.Entity<LoanHistory>()
+                .HasIndex(lh => lh.userId);
+
+            modelBuilder.Entity<LoanHistory>()
+                .Property(lh => lh.loanDate)
+                .HasColumnType("date")
+                .HasDefaultValueSql("GETDATE()");
+
+            modelBuilder.Entity<LoanHistory>()
+                .Property(lh => lh.returnDate)
+                .HasColumnType("date")
+                .IsRequired(false);
 
             // Only call the base method once
             base.OnModelCreating(modelBuilder);
