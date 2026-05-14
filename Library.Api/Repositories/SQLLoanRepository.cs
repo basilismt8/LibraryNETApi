@@ -62,6 +62,34 @@ namespace Library.Api.Repositories
                     dbContext.Books.Update(book);
 
                     createdLoans.Add(loan);
+
+                    var loanDate = loan.loanDate;
+
+                    // Update or create the LoanHistory entry for this book copy
+                    var historyEntry = await dbContext.LoanHistories
+                        .FirstOrDefaultAsync(lh => lh.bookCopyId == availableCopy.id, cancellationToken);
+
+                    if (historyEntry != null)
+                    {
+                        // Copy was previously returned — reset for the new loan
+                        historyEntry.loanDate = loanDate;
+                        historyEntry.returnDate = null;
+                        historyEntry.userId = userId;
+                        dbContext.LoanHistories.Update(historyEntry);
+                    }
+                    else
+                    {
+                        // First time this copy is being loaned out
+                        var newHistory = new LoanHistory
+                        {
+                            id = Guid.NewGuid(),
+                            bookCopyId = availableCopy.id,
+                            userId = userId,
+                            loanDate = loanDate,
+                            returnDate = null
+                        };
+                        await dbContext.LoanHistories.AddAsync(newHistory, cancellationToken);
+                    }
                 }
 
                 await dbContext.SaveChangesAsync(cancellationToken);

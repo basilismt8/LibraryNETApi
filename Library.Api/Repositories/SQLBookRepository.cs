@@ -216,6 +216,18 @@ namespace Library.Api.Repositories
                     dbContext.Fines.Update(fine);
                 }
 
+
+                // Update or create the LoanHistory entry for this book copy
+                var historyEntry = await dbContext.LoanHistories
+                    .FirstOrDefaultAsync(lh => lh.bookCopyId == bookCopyId, cancellationToken);
+
+                if (historyEntry != null)
+                {
+                    historyEntry.returnDate = DateOnly.FromDateTime(DateTime.Now);
+                    historyEntry.userId = userId;
+                    dbContext.LoanHistories.Update(historyEntry);
+                }
+
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
