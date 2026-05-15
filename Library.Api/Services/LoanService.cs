@@ -18,12 +18,12 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<LoanDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<LoanDto>>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all loans");
             var loans = await _loanRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} loans", loans.Count);
-            return _mapper.Map<List<LoanDto>>(loans);
+            return ServiceResult<List<LoanDto>>.Ok(_mapper.Map<List<LoanDto>>(loans));
         }
 
         public async Task<ServiceResult<LoanDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -37,11 +37,12 @@ namespace Library.Api.Services
             return ServiceResult<LoanDto>.Ok(_mapper.Map<LoanDto>(loan));
         }
 
-        public async Task<List<LoanDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<LoanDto>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving loans for user {UserId}", userId);
             var loans = await _loanRepository.getAllLoansByUserIdAsync(userId, cancellationToken);
-            return _mapper.Map<List<LoanDto>>(loans);
+            _logger.LogInformation("Retrieved {Count} loans for user {UserId}", loans.Count, userId);
+            return ServiceResult<List<LoanDto>>.Ok(_mapper.Map<List<LoanDto>>(loans));
         }
 
         public async Task<ServiceResult<List<LoanDto>>> CreateAsync(Guid userId, CreateLoanRequestDto dto, CancellationToken cancellationToken = default)

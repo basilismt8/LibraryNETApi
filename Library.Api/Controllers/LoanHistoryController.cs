@@ -23,8 +23,10 @@ namespace Library.Api.Controllers
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             _logger.LogInformation("GET /api/loanhistory called by {User}", User.Identity?.Name);
-            var records = await _loanHistoryService.GetAllAsync(cancellationToken);
-            return Ok(records);
+            var result = await _loanHistoryService.GetAllAsync(cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpGet("user/current")]
@@ -35,16 +37,30 @@ namespace Library.Api.Controllers
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-            var records = await _loanHistoryService.GetByUserIdAsync(userId, cancellationToken);
-            return Ok(records);
+            var result = await _loanHistoryService.GetByUserIdAsync(userId, cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpGet("bookcopy/{bookCopyId:guid}")]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetByBookCopy([FromRoute] Guid bookCopyId, CancellationToken cancellationToken)
         {
-            var records = await _loanHistoryService.GetByBookCopyIdAsync(bookCopyId, cancellationToken);
-            return Ok(records);
+            var result = await _loanHistoryService.GetByBookCopyIdAsync(bookCopyId, cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
+        }
+
+        [HttpGet("paired")]
+        [Authorize(Roles = "Librarian")]
+        public async Task<IActionResult> GetAllPaired(CancellationToken cancellationToken)
+        {
+            var result = await _loanHistoryService.GetAllPairedAsync(cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
     }
 }

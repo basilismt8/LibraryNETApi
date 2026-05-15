@@ -1,4 +1,5 @@
 using Library.Api.Models.Domain;
+using Library.Api.Models.Dto;
 
 namespace Library.Api.Repositories
 {
@@ -9,5 +10,7 @@ namespace Library.Api.Repositories
         Task<List<LoanHistory>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<List<LoanHistory>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<List<LoanHistory>> GetByBookCopyIdAsync(Guid bookCopyId, CancellationToken cancellationToken = default);
+        Task<List<LoanHistoryEventDto>> GetAllPairedAsync(CancellationToken cancellationToken = default);
+        Task<List<LoanHistoryEventDto>> GetByBookCopyIdPairedAsync(Guid bookCopyId, CancellationToken cancellationToken = default);
     }
 }

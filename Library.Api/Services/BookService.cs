@@ -18,12 +18,12 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<BookDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<BookDto>>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all books");
             var books = await _bookRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} books", books.Count);
-            return _mapper.Map<List<BookDto>>(books);
+            return ServiceResult<List<BookDto>>.Ok(_mapper.Map<List<BookDto>>(books));
         }
 
         public async Task<ServiceResult<BookDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)

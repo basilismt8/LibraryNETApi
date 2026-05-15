@@ -25,8 +25,10 @@ namespace Library.Api.Controllers
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             _logger.LogInformation("GET /api/books called by {User}", User.Identity?.Name);
-            var books = await _bookService.GetAllAsync(cancellationToken);
-            return Ok(books);
+            var result = await _bookService.GetAllAsync(cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpGet("{id:Guid}")]

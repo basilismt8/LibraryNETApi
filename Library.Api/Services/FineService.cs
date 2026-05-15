@@ -17,12 +17,12 @@ namespace Library.Api.Services
             _logger = logger;
         }
 
-        public async Task<List<FineDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<FineDto>>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all fines");
             var fines = await _fineRepository.getAllAsync(cancellationToken);
             _logger.LogInformation("Retrieved {Count} fines", fines.Count);
-            return _mapper.Map<List<FineDto>>(fines);
+            return ServiceResult<List<FineDto>>.Ok(_mapper.Map<List<FineDto>>(fines));
         }
 
         public async Task<ServiceResult<FineDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -62,11 +62,12 @@ namespace Library.Api.Services
             return ServiceResult<List<FineDto>>.Ok(_mapper.Map<List<FineDto>>(fines));
         }
 
-        public async Task<List<FineDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<FineDto>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving fines for user {UserId}", userId);
             var fines = await _fineRepository.getByUserIdAsync(userId, cancellationToken);
-            return _mapper.Map<List<FineDto>>(fines);
+            _logger.LogInformation("Retrieved {Count} fines for user {UserId}", fines.Count, userId);
+            return ServiceResult<List<FineDto>>.Ok(_mapper.Map<List<FineDto>>(fines));
         }
 
         public async Task<ServiceResult<FineDto>> PayFineAsync(Guid id, CancellationToken cancellationToken = default)

@@ -4,7 +4,7 @@ namespace Library.Api.Services
 {
     public interface IBookService
     {
-        Task<List<BookDto>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<ServiceResult<List<BookDto>>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<ServiceResult<BookDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<ServiceResult<BookDto>> CreateAsync(CreateBookRequestDto dto, CancellationToken cancellationToken = default);
         Task<ServiceResult<BookDto>> UpdateAsync(string id, UpdateBookRequestDto dto, CancellationToken cancellationToken = default);

@@ -217,15 +217,20 @@ namespace Library.Api.Repositories
                 }
 
 
-                // Update or create the LoanHistory entry for this book copy
-                var historyEntry = await dbContext.LoanHistories
-                    .FirstOrDefaultAsync(lh => lh.bookCopyId == bookCopyId, cancellationToken);
+                // Insert a new closed history entry for this return
+                var openEntry = await dbContext.LoanHistories
+                    .FirstOrDefaultAsync(lh => lh.bookCopyId == bookCopyId && lh.returnDate == null, cancellationToken);
 
-                if (historyEntry != null)
+                if (openEntry != null)
                 {
-                    historyEntry.returnDate = DateOnly.FromDateTime(DateTime.Now);
-                    historyEntry.userId = userId;
-                    dbContext.LoanHistories.Update(historyEntry);
+                    await dbContext.LoanHistories.AddAsync(new LoanHistory
+                    {
+                        id = Guid.NewGuid(),
+                        bookCopyId = bookCopyId,
+                        userId = userId,
+                        loanDate = openEntry.loanDate,
+                        returnDate = DateOnly.FromDateTime(DateTime.Today)
+                    }, cancellationToken);
                 }
 
                 await dbContext.SaveChangesAsync(cancellationToken);

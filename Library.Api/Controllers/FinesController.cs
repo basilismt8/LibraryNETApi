@@ -25,8 +25,10 @@ namespace Library.Api.Controllers
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             _logger.LogInformation("GET /api/fines called by {User}", User.Identity?.Name);
-            var fines = await _fineService.GetAllAsync(cancellationToken);
-            return Ok(fines);
+            var result = await _fineService.GetAllAsync(cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpGet("user/current")]
@@ -37,8 +39,10 @@ namespace Library.Api.Controllers
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("User ID not found in token.");
 
             var userId = Guid.Parse(userIdStr);
-            var fines = await _fineService.GetByUserIdAsync(userId, cancellationToken);
-            return Ok(fines);
+            var result = await _fineService.GetByUserIdAsync(userId, cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
         }
 
         [HttpGet("{id:Guid}")]
