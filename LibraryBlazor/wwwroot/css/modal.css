@@ -289,3 +289,130 @@
         flex: 1 1 auto;
     }
 }
+
+/* ─── History Modal ─── */
+.history-modal {
+    max-width: 520px;
+}
+
+.history-modal-body {
+    padding: 8px 28px 20px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.history-loading,
+.history-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #9e8a78;
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+/* ─── Timeline ─── */
+.history-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.timeline-connector-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 16px;
+}
+
+.timeline-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+
+.dot-loaned {
+    background: #4ade80;
+    border: 2px solid #16a34a;
+}
+
+.dot-returned {
+    background: #60a5fa;
+    border: 2px solid #2563eb;
+}
+
+.timeline-line {
+    width: 2px;
+    flex: 1;
+    min-height: 36px;
+    background: rgba(255,255,255,0.10);
+    margin: 4px 0;
+}
+
+.timeline-content {
+    padding-bottom: 24px;
+    flex: 1;
+}
+
+.timeline-item-last .timeline-content {
+    padding-bottom: 4px;
+}
+
+.timeline-event-type {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.event-loaned {
+    color: #4ade80;
+}
+
+.event-returned {
+    color: #60a5fa;
+}
+
+.timeline-date {
+    font-size: 12px;
+    color: #9e8a78;
+    margin-top: 2px;
+}
+
+.timeline-copy-id {
+    font-size: 11px;
+    color: #7a6a5a;
+    margin-top: 2px;
+}
+
+/* ─── Per-copy section ─── */
+.history-copy-section {
+    margin-bottom: 8px;
+}
+
+.history-copy-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #c9956a;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    padding: 10px 0 6px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+}
+
+.history-copy-section:first-child .history-copy-header {
+    border-top: none;
+    padding-top: 0;
+}

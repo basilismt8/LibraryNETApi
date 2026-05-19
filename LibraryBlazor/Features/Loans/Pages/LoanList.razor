@@ -1,8 +1,10 @@
 ﻿@page "/loans"
 @using LibraryBlazor.Features.Loans.Models
 @using LibraryBlazor.Features.Loans.Components
+@using LibraryBlazor.Features.Books.Models
 @using LibraryBlazor.Shared.Models
 @using LibraryBlazor.Http
+@using LibraryBlazor.Components
 @implements IDisposable
 @inject LibraryBlazor.Features.Loans.Services.LoanApi LoanApi
 
@@ -13,6 +15,8 @@
             FilterIdChanged="@(v => FilterId = v)"
             FilterBookCopyId="@FilterBookCopyId"
             FilterBookCopyIdChanged="@(v => FilterBookCopyId = v)"
+            FilterCopyCode="@FilterCopyCode"
+            FilterCopyCodeChanged="@(v => FilterCopyCode = v)"
             FilterTitle="@FilterTitle"
             FilterTitleChanged="@(v => FilterTitle = v)"
             CurrentPage="@CurrentPage"
@@ -20,7 +24,8 @@
             PageSize="@PageSize"
             PageSizeChanged="@(v => PageSize = v)"
             OnExtendLoan="OpenExtendLoan"
-            OnReturnBook="ReturnBookAsync" />
+            OnReturnBook="ReturnBookAsync"
+            OnHistory="OpenHistoryAsync" />
 
 <DueDateModal IsOpen="@_showModal"
                   IsOpenChanged="@(v => _showModal = v)"
@@ -36,6 +41,15 @@
                   OnCancel="CloseModal"
                   OnConfirm="SaveAsync" />
 
+<HistoryModal IsOpen="@_showHistoryModal"
+              IsOpenChanged="@(v => _showHistoryModal = v)"
+              Loading="@_historyLoading"
+              Error="@_historyError"
+              Events="@_historyEvents"
+              SingleCopyMode="true"
+              CopyCode="@_historyCopyCode"
+              BookTitle="@_historyBookTitle" />
+
 @code {
     private readonly CancellationTokenSource _cts = new();
 
@@ -44,12 +58,20 @@
     private bool _saving;
     private string FilterId = "";
     private string FilterBookCopyId = "";
+    private string FilterCopyCode = "";
     private string FilterTitle = "";
     private int CurrentPage = 1;
     private int PageSize = 10;
     private LoanRowVm? _selectedLoan;
     private DateOnly _newDueDate;
     private string? _modalError;
+
+    private bool _showHistoryModal;
+    private bool _historyLoading;
+    private string? _historyError;
+    private Dictionary<Guid, List<LoanHistoryEventDto>>? _historyEvents;
+    private string? _historyCopyCode;
+    private string? _historyBookTitle;
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
@@ -84,6 +106,31 @@
         var result = await LoanApi.ReturnBookAsync(loan.UserId, loan.BookCopyId, _cts.Token);
         if (result.Success)
             await ReloadAsync();
+    }
+
+    private async Task OpenHistoryAsync(LoanRowVm loan)
+    {
+        _historyEvents = null;
+        _historyError = null;
+        _historyCopyCode = loan.CopyCode;
+        _historyBookTitle = loan.BookTitle;
+        _historyLoading = true;
+        _showHistoryModal = true;
+
+        var result = await LoanApi.GetBookCopyHistoryAsync(loan.BookCopyId, _cts.Token);
+
+        _historyLoading = false;
+
+        if (!result.Success || result.Data == null)
+        {
+            _historyError = result.Message ?? "Failed to load history.";
+            return;
+        }
+
+        _historyEvents = new Dictionary<Guid, List<LoanHistoryEventDto>>
+        {
+            [loan.BookCopyId] = result.Data
+        };
     }
 
     private void CloseModal()

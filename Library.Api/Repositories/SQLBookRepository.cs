@@ -107,7 +107,10 @@ namespace Library.Api.Repositories
 
         public async Task<List<Book>> getAllAsync(CancellationToken cancellationToken = default)
         {
-            return await dbContext.Books.ToListAsync(cancellationToken);
+            return await dbContext.Books
+                .Include(b => b.BookCopies)
+                    .ThenInclude(bc => bc.LoanHistories)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<Book?> getByIdAsync(Guid id, CancellationToken cancellationToken = default)

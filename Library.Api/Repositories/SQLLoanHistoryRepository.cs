@@ -63,37 +63,43 @@ namespace Library.Api.Repositories
         public async Task<List<LoanHistoryEventDto>> GetAllPairedAsync(CancellationToken cancellationToken = default)
         {
             var records = await dbContext.LoanHistories
-                .OrderBy(lh => lh.loanDate)
+                .Join(dbContext.BookCopies,
+                    lh => lh.bookCopyId,
+                    bc => bc.id,
+                    (lh, bc) => new { lh, bc.copyCode })
+                .OrderBy(x => x.lh.loanDate)
                 .ToListAsync(cancellationToken);
 
-            var groups = records.GroupBy(r => (r.bookCopyId, r.loanDate));
+            var groups = records.GroupBy(r => (r.lh.bookCopyId, r.lh.loanDate));
 
             var result = new List<LoanHistoryEventDto>();
 
             foreach (var group in groups)
             {
-                var openEntry = group.FirstOrDefault(r => r.returnDate == null);
-                var closedEntry = group.FirstOrDefault(r => r.returnDate != null);
+                var openEntry = group.FirstOrDefault(r => r.lh.returnDate == null);
+                var closedEntry = group.FirstOrDefault(r => r.lh.returnDate != null);
 
                 var source = openEntry ?? closedEntry!;
                 result.Add(new LoanHistoryEventDto
                 {
-                    historyId = source.id,
-                    bookCopyId = source.bookCopyId,
-                    userId = source.userId,
+                    historyId = source.lh.id,
+                    bookCopyId = source.lh.bookCopyId,
+                    copyCode = source.copyCode,
+                    userId = source.lh.userId,
                     eventType = "Loaned",
-                    date = source.loanDate
+                    date = source.lh.loanDate
                 });
 
                 if (closedEntry != null)
                 {
                     result.Add(new LoanHistoryEventDto
                     {
-                        historyId = closedEntry.id,
-                        bookCopyId = closedEntry.bookCopyId,
-                        userId = closedEntry.userId,
+                        historyId = closedEntry.lh.id,
+                        bookCopyId = closedEntry.lh.bookCopyId,
+                        copyCode = closedEntry.copyCode,
+                        userId = closedEntry.lh.userId,
                         eventType = "Returned",
-                        date = closedEntry.returnDate!.Value
+                        date = closedEntry.lh.returnDate!.Value
                     });
                 }
             }
@@ -105,7 +111,11 @@ namespace Library.Api.Repositories
         {
             var records = await dbContext.LoanHistories
                 .Where(lh => lh.bookCopyId == bookCopyId)
-                .OrderBy(lh => lh.loanDate)
+                .Join(dbContext.BookCopies,
+                    lh => lh.bookCopyId,
+                    bc => bc.id,
+                    (lh, bc) => new { lh, bc.copyCode })
+                .OrderBy(x => x.lh.loanDate)
                 .ToListAsync(cancellationToken);
 
             var result = new List<LoanHistoryEventDto>();
@@ -114,8 +124,60 @@ namespace Library.Api.Repositories
             {
                 result.Add(new LoanHistoryEventDto
                 {
+                    historyId = record.lh.id,
+                    bookCopyId = record.lh.bookCopyId,
+                    copyCode = record.copyCode,
+                    userId = record.lh.userId,
+                    eventType = "Loaned",
+                    date = record.lh.loanDate
+                });
+
+                if (record.lh.returnDate.HasValue)
+                {
+                    result.Add(new LoanHistoryEventDto
+                    {
+                        historyId = record.lh.id,
+                        bookCopyId = record.lh.bookCopyId,
+                        copyCode = record.copyCode,
+                        userId = record.lh.userId,
+                        eventType = "Returned",
+                        date = record.lh.returnDate.Value
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<Dictionary<Guid, List<LoanHistoryEventDto>>> GetByBookIdPairedAsync(Guid bookId, CancellationToken cancellationToken = default)
+        {
+            var copies = await dbContext.BookCopies
+                .Where(bc => bc.bookId == bookId)
+                .Select(bc => new { bc.id, bc.copyCode })
+                .ToListAsync(cancellationToken);
+
+            var copyIds = copies.Select(c => c.id).ToList();
+            var copyCodeMap = copies.ToDictionary(c => c.id, c => c.copyCode);
+
+            var records = await dbContext.LoanHistories
+                .Where(lh => copyIds.Contains(lh.bookCopyId))
+                .OrderBy(lh => lh.loanDate)
+                .ToListAsync(cancellationToken);
+
+            var result = new Dictionary<Guid, List<LoanHistoryEventDto>>();
+
+            foreach (var record in records)
+            {
+                if (!result.ContainsKey(record.bookCopyId))
+                    result[record.bookCopyId] = new List<LoanHistoryEventDto>();
+
+                var code = copyCodeMap.GetValueOrDefault(record.bookCopyId, string.Empty);
+
+                result[record.bookCopyId].Add(new LoanHistoryEventDto
+                {
                     historyId = record.id,
                     bookCopyId = record.bookCopyId,
+                    copyCode = code,
                     userId = record.userId,
                     eventType = "Loaned",
                     date = record.loanDate
@@ -123,10 +185,11 @@ namespace Library.Api.Repositories
 
                 if (record.returnDate.HasValue)
                 {
-                    result.Add(new LoanHistoryEventDto
+                    result[record.bookCopyId].Add(new LoanHistoryEventDto
                     {
                         historyId = record.id,
                         bookCopyId = record.bookCopyId,
+                        copyCode = code,
                         userId = record.userId,
                         eventType = "Returned",
                         date = record.returnDate.Value

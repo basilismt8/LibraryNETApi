@@ -7,6 +7,7 @@ namespace Library.Api.Models.Dto
     {
         public Guid id { get; set; }
         public Guid bookCopyId { get; set; }
+        public string copyCode { get; set; } = string.Empty;
         public Guid userId { get; set; }
         public DateOnly loanDate { get; set; }
         public DateOnly dueDate { get; set; }

@@ -4,5 +4,6 @@ public sealed record BookDto(
     Guid id,
     string title,
     int copiesAvailable,
-    int totalCopies
+    int totalCopies,
+    bool hasLoanHistory
 );

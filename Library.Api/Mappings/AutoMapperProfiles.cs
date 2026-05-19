@@ -8,7 +8,9 @@ namespace Library.Api.Mappings
     {
         public AutoMapperProfiles()
         {
-            CreateMap<Book, BookDto>().ReverseMap();
+            CreateMap<Book, BookDto>()
+                .ForMember(dest => dest.hasLoanHistory, opt => opt.MapFrom(src => src.BookCopies.Any(bc => bc.LoanHistories.Any())))
+                .ReverseMap();
             CreateMap<CreateBookRequestDto, Book>().ReverseMap();
             CreateMap<UpdateBookRequestDto, Book>().ReverseMap();
             CreateMap<BookCopy, BookCopyDto>().ReverseMap();
@@ -17,6 +19,7 @@ namespace Library.Api.Mappings
                 .ReverseMap();
             CreateMap<Loan, LoanDto>()
                 .ForMember(dest => dest.bookTitle, opt => opt.MapFrom(src => src.BookCopy!.Book!.title))
+                .ForMember(dest => dest.copyCode, opt => opt.MapFrom(src => src.BookCopy!.copyCode))
                 .ReverseMap();
             CreateMap<AddFineRequestDto, Fine>().ReverseMap();
             CreateMap<CreateLoanRequestDto, Loan>().ReverseMap();

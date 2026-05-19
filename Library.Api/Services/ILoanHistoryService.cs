@@ -11,5 +11,6 @@ namespace Library.Api.Services
         Task<ServiceResult<List<LoanHistoryDto>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<ServiceResult<List<LoanHistoryEventDto>>> GetByBookCopyIdAsync(Guid bookCopyId, CancellationToken cancellationToken = default);
         Task<ServiceResult<List<LoanHistoryEventDto>>> GetAllPairedAsync(CancellationToken cancellationToken = default);
+        Task<ServiceResult<Dictionary<Guid, List<LoanHistoryEventDto>>>> GetByBookIdAsync(Guid bookId, CancellationToken cancellationToken = default);
     }
 }

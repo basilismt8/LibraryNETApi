@@ -79,5 +79,13 @@ namespace Library.Api.Services
             _logger.LogInformation("Retrieved {Count} paired loan history events for BookCopyId {BookCopyId}", events.Count, bookCopyId);
             return ServiceResult<List<LoanHistoryEventDto>>.Ok(events);
         }
+
+        public async Task<ServiceResult<Dictionary<Guid, List<LoanHistoryEventDto>>>> GetByBookIdAsync(Guid bookId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Retrieving paired loan history events for BookId {BookId}", bookId);
+            var events = await _loanHistoryRepository.GetByBookIdPairedAsync(bookId, cancellationToken);
+            _logger.LogInformation("Retrieved history for {Count} copies for BookId {BookId}", events.Count, bookId);
+            return ServiceResult<Dictionary<Guid, List<LoanHistoryEventDto>>>.Ok(events);
+        }
     }
 }

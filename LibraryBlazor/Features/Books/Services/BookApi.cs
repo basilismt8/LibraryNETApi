@@ -45,4 +45,6 @@ public sealed class BookApi
     public Task<ApiResult> DeleteBookAsync(Guid id, CancellationToken cancellationToken = default)
         => _api.DeleteResultAsync($"api/books/{id}", cancellationToken);
 
+    public Task<ApiResult<Dictionary<Guid, List<LoanHistoryEventDto>>>> GetBookHistoryAsync(Guid bookId, CancellationToken cancellationToken = default)
+        => _api.GetResultAsync<Dictionary<Guid, List<LoanHistoryEventDto>>>($"api/loanhistory/book/{bookId}", cancellationToken);
 }

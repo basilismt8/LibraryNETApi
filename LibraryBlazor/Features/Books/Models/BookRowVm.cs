@@ -8,11 +8,13 @@ public sealed class BookRowVm
         Title = dto.title;
         CopiesAvailable = dto.copiesAvailable;
         TotalCopies = dto.totalCopies;
+        HasLoanHistory = dto.hasLoanHistory;
     }
 
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public int CopiesAvailable { get; set; }
     public int TotalCopies { get; set; }
+    public bool HasLoanHistory { get; set; }
     public bool IsSelected { get; set; }
 }

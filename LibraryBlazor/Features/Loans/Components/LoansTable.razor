@@ -24,17 +24,21 @@
                 <tr>
                     <th>Id</th>
                     <th>Book Copy Id</th>
+                    <th>Book Copy Code</th>
                     <th>Book Title</th>
                     <th>Loan Date</th>
                     <th>Due Date</th>
                     <th class="col-status">Status</th>
                     <th class="col-action">Extend Loan</th>
                     <th class="col-action">Return</th>
+                    <th class="col-action">Loan History</th>
                 </tr>
                 <tr class="filters">
                     <th><input class="form-control form-control-sm" placeholder="Filter Id" value="@FilterId" @oninput="OnFilterIdInput" /></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Book Copy Id" value="@FilterBookCopyId" @oninput="OnFilterBookCopyIdInput" /></th>
+                    <th><input class="form-control form-control-sm" placeholder="Filter Copy Code" value="@FilterCopyCode" @oninput="OnFilterCopyCodeInput" /></th>
                     <th><input class="form-control form-control-sm" placeholder="Filter Title" value="@FilterTitle" @oninput="OnFilterTitleInput" /></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -48,6 +52,7 @@
                     <tr class="@GetRowClass(loan)" @onclick="() => ToggleSelection(loan)">
                         <td><GuidDisplay Value="@loan.Id" /></td>
                         <td><GuidDisplay Value="@loan.BookCopyId" /></td>
+                        <td>@loan.CopyCode</td>
                         <td>@loan.BookTitle</td>
                         <td>@loan.LoanDate</td>
                         <td>@loan.DueDate</td>
@@ -66,6 +71,13 @@
                                     @onclick:stopPropagation="true"
                                     disabled="@(!IsLoanExtendable(loan))">
                                 <i class="bi bi-box-arrow-in-left"></i>
+                            </button>
+                        </td>
+                        <td class="action-cell">
+                            <button type="button" class="btn btn-extend-loan" title="Loan history"
+                                    @onclick="() => OnHistory.InvokeAsync(loan)"
+                                    @onclick:stopPropagation="true">
+                                <i class="bi bi-clock-history"></i>
                             </button>
                         </td>
                     </tr>

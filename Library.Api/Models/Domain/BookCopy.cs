@@ -10,5 +10,6 @@ namespace Library.Api.Models.Domain
         // Navigation properties
         public Book? Book { get; set; }
         public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+        public ICollection<LoanHistory> LoanHistories { get; set; } = new List<LoanHistory>();
     }
 }

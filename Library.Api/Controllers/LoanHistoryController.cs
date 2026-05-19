@@ -53,6 +53,16 @@ namespace Library.Api.Controllers
             return Ok(result.Data);
         }
 
+        [HttpGet("book/{bookId:guid}")]
+        [Authorize(Roles = "Librarian")]
+        public async Task<IActionResult> GetByBook([FromRoute] Guid bookId, CancellationToken cancellationToken)
+        {
+            var result = await _loanHistoryService.GetByBookIdAsync(bookId, cancellationToken);
+            if (!result.Success)
+                return StatusCode(result.StatusCode, result.Error);
+            return Ok(result.Data);
+        }
+
         [HttpGet("paired")]
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> GetAllPaired(CancellationToken cancellationToken)

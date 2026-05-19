@@ -9,6 +9,7 @@ namespace LibraryBlazor.Features.Loans.Models
         {
             Id = dto.id;
             BookCopyId = dto.bookCopyId;
+            CopyCode = dto.copyCode;
             UserId = dto.userId;
             LoanDate = dto.loanDate;
             DueDate = dto.dueDate;
@@ -20,6 +21,7 @@ namespace LibraryBlazor.Features.Loans.Models
 
         public Guid Id { get; set; }
         public Guid BookCopyId { get; set; }
+        public string CopyCode { get; set; } = string.Empty;
         public Guid UserId { get; set; }
         public DateOnly LoanDate { get; set; }
         public DateOnly DueDate { get; set; }

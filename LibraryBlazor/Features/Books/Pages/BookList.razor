@@ -20,7 +20,8 @@
             OnNew="OpenNew"
             OnEdit="OpenEdit"
             OnLoan="OpenLoan"
-            OnDelete="OpenDelete" />
+            OnDelete="OpenDelete"
+            OnHistory="OpenHistory" />
 
 <AddEditBookModal IsOpen="@_showModal"
                   IsOpenChanged="@(v => _showModal = v)"
@@ -54,6 +55,12 @@
               OnCancel="CloseLoanModal"
               OnConfirm="SaveLoanAsync" />
 
+<HistoryModal IsOpen="@_showHistoryModal"
+              IsOpenChanged="@(v => _showHistoryModal = v)"
+              Loading="@_historyLoading"
+              Error="@_historyError"
+              Events="@_historyEvents" />
+
 @code {
     private readonly CancellationTokenSource _cts = new();
 
@@ -75,6 +82,11 @@
 
     private BookRowVm? _selectedBook;
     private DateOnly _loanDueDate;
+
+    private bool _showHistoryModal;
+    private bool _historyLoading;
+    private string? _historyError;
+    private Dictionary<Guid, List<LoanHistoryEventDto>>? _historyEvents;
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
@@ -137,6 +149,29 @@
         _modalError = null;
         _showLoanModal = true;
         return Task.CompletedTask;
+    }
+
+    private async Task OpenHistory(BookRowVm book)
+    {
+        _historyError = null;
+        _historyEvents = null;
+        _historyLoading = true;
+        _showHistoryModal = true;
+        StateHasChanged();
+
+        var result = await BookApi.GetBookHistoryAsync(book.Id, _cts.Token);
+        _historyLoading = false;
+
+        if (!result.Success)
+        {
+            _historyError = result.Message ?? "Failed to load history.";
+        }
+        else
+        {
+            _historyEvents = result.Data ?? new Dictionary<Guid, List<LoanHistoryEventDto>>();
+        }
+
+        StateHasChanged();
     }
 
     private void CloseLoanModal()

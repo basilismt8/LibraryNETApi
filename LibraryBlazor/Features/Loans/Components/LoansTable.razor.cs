@@ -17,6 +17,9 @@ public partial class LoansTable
     [Parameter] public string FilterBookCopyId { get; set; } = "";
     [Parameter] public EventCallback<string> FilterBookCopyIdChanged { get; set; }
 
+    [Parameter] public string FilterCopyCode { get; set; } = "";
+    [Parameter] public EventCallback<string> FilterCopyCodeChanged { get; set; }
+
     [Parameter] public int CurrentPage { get; set; } = 1;
     [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
 
@@ -25,6 +28,7 @@ public partial class LoansTable
 
     [Parameter] public EventCallback<LoanRowVm> OnExtendLoan { get; set; }
     [Parameter] public EventCallback<LoanRowVm> OnReturnBook { get; set; }
+    [Parameter] public EventCallback<LoanRowVm> OnHistory { get; set; }
 
     private LoanRowVm? _loanToReturn;
     private bool _showReturnConfirm;
@@ -58,6 +62,7 @@ public partial class LoansTable
        Items.Where(l =>
            (string.IsNullOrWhiteSpace(FilterId) || l.Id.ToString().Contains(FilterId, StringComparison.OrdinalIgnoreCase)) &&
            (string.IsNullOrWhiteSpace(FilterBookCopyId) || l.BookCopyId.ToString().Contains(FilterBookCopyId, StringComparison.OrdinalIgnoreCase)) &&
+           (string.IsNullOrWhiteSpace(FilterCopyCode) || l.CopyCode.Contains(FilterCopyCode, StringComparison.OrdinalIgnoreCase)) &&
            (string.IsNullOrWhiteSpace(FilterTitle) || l.BookTitle.Contains(FilterTitle, StringComparison.OrdinalIgnoreCase)));
 
     private IEnumerable<LoanRowVm> PagedItems =>
@@ -129,6 +134,12 @@ public partial class LoansTable
     private async Task OnFilterBookCopyIdInput(ChangeEventArgs e)
     {
         await FilterBookCopyIdChanged.InvokeAsync(e.Value?.ToString() ?? "");
+        await CurrentPageChanged.InvokeAsync(1);
+    }
+
+    private async Task OnFilterCopyCodeInput(ChangeEventArgs e)
+    {
+        await FilterCopyCodeChanged.InvokeAsync(e.Value?.ToString() ?? "");
         await CurrentPageChanged.InvokeAsync(1);
     }
 

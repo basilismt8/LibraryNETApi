@@ -29,5 +29,8 @@ namespace LibraryBlazor.Features.Loans.Services
                 userId,
                 bookCopyId
             }, cancellationToken);
+
+        public Task<ApiResult<List<LoanHistoryEventDto>>> GetBookCopyHistoryAsync(Guid bookCopyId, CancellationToken cancellationToken = default)
+            => _api.GetResultAsync<List<LoanHistoryEventDto>>($"api/loanhistory/bookcopy/{bookCopyId}", cancellationToken);
     }
 }
